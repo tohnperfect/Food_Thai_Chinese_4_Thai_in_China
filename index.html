@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ค้นหาอาหาร · 食物词典</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F1E5;
+    --paper-2: #F0E7D2;
+    --ink: #1B1612;
+    --ink-soft: #4A3F36;
+    --muted: #8A7A66;
+    --line: #D8C9A8;
+    --vermillion: #B83A26;
+    --vermillion-deep: #8E2A1A;
+    --gold: #B68A2E;
+    --jade: #4F7A5A;
+    --shadow: 0 1px 0 rgba(27,22,18,0.04), 0 8px 24px -12px rgba(27,22,18,0.18);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "DM Sans", "IBM Plex Sans Thai", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184,58,38,0.04), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(182,138,46,0.05), transparent 50%);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 18px 100px; }
+  /* ───── Header ───── */
+  header {
+    padding: 28px 0 16px;
+    text-align: center;
+    position: relative;
+  }
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    background: var(--vermillion);
+    color: #FFF6E5;
+    font-family: "Noto Serif TC", "Songti SC", "Songti TC", "STSong", serif;
+    font-size: 30px; font-weight: 700;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 var(--vermillion-deep), 0 8px 20px -6px rgba(184,58,38,0.5);
+    transform: rotate(-4deg);
+    margin-bottom: 14px;
+    letter-spacing: -2px;
+  }
+  h1 {
+    font-family: "Fraunces", "Noto Serif TC", serif;
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  h1 .cn {
+    font-family: "Noto Serif TC", "Songti SC", serif;
+    font-weight: 500;
+    color: var(--vermillion);
+    margin-left: 8px;
+  }
+  .subtitle {
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  /* ───── Search ───── */
+  .search-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: linear-gradient(to bottom, var(--paper) 70%, rgba(247,241,229,0));
+    padding: 14px 0 18px;
+    margin-bottom: 4px;
+  }
+  .search-box {
+    position: relative;
+    background: #FFFDF7;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search-box:focus-within {
+    border-color: var(--vermillion);
+    box-shadow: 0 0 0 4px rgba(184,58,38,0.12), var(--shadow);
+  }
+  #q {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 16px 50px 16px 48px;
+    font-size: 17px;
+    font-family: "IBM Plex Sans Thai", "DM Sans", sans-serif;
+    color: var(--ink);
+    border-radius: 14px;
+  }
+  #q::placeholder { color: var(--muted); }
+  .search-icon {
+    position: absolute;
+    left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--vermillion);
+    pointer-events: none;
+  }
+  .clear-btn {
+    position: absolute;
+    right: 10px; top: 50%; transform: translateY(-50%);
+    background: var(--paper-2);
+    border: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+  .clear-btn.show { display: flex; }
+  /* ───── Category tabs ───── */
+  .cats {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 0 6px;
+    margin: 0 -18px 14px;
+    padding-left: 18px;
+    padding-right: 18px;
+    scrollbar-width: none;
+  }
+  .cats::-webkit-scrollbar { display: none; }
+  .cat {
+    flex-shrink: 0;
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .cat:hover { border-color: var(--vermillion); color: var(--vermillion); }
+  .cat.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  /* ───── Results ───── */
+  .result-count {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 4px 4px 14px;
+    letter-spacing: 0.02em;
+  }
+  .results { display: grid; gap: 10px; }
+  .card {
+    background: #FFFDF7;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .card:hover {
+    border-color: var(--vermillion);
+    box-shadow: var(--shadow);
+  }
+  .card-text { min-width: 0; }
+  .thai-name {
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .chinese {
+    font-family: "Noto Serif TC", "Songti SC", "Songti TC", "STSong", "SimSun", serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    margin: 0 0 4px;
+    user-select: all;
+    -webkit-user-select: all;
+  }
+  .pinyin {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--vermillion);
+    margin: 0 0 2px;
+    letter-spacing: 0.01em;
+  }
+  .english {
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .copy-btn {
+    flex-shrink: 0;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    color: var(--ink-soft);
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    font-family: "IBM Plex Sans Thai", sans-serif;
+  }
+  .copy-btn:hover {
+    background: var(--vermillion);
+    border-color: var(--vermillion);
+    color: #FFF6E5;
+  }
+  .copy-btn.copied {
+    background: var(--jade);
+    border-color: var(--jade);
+    color: #F0F5E8;
+  }
+  .copy-btn svg { width: 18px; height: 18px; }
+  /* ───── Empty state ───── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty .big {
+    font-family: "Noto Serif TC", serif;
+    font-size: 48px;
+    color: var(--line);
+    margin-bottom: 12px;
+  }
+  .empty p {
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    font-size: 14px;
+    margin: 4px 0;
+  }
+  /* ───── Toast ───── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast .cn {
+    font-family: "Noto Serif TC", serif;
+    color: var(--gold);
+    margin: 0 4px;
+  }
+  /* highlight match */
+  mark {
+    background: rgba(182,138,46,0.25);
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+  /* footer */
+  .ribbon {
+    text-align: center;
+    margin-top: 30px;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .ribbon::before, .ribbon::after {
+    content: "❦";
+    margin: 0 10px;
+    color: var(--vermillion);
+    font-style: normal;
+  }
+  @media (max-width: 480px) {
+    h1 { font-size: 24px; }
+    .chinese { font-size: 26px; }
+    .card { padding: 12px 14px; }
+    .copy-btn { width: 40px; height: 40px; }
+    .stats-btn { font-size: 11px; padding: 6px 10px; }
+  }
+  /* ───── Stats button ───── */
+  .stats-btn {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 7px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s ease;
+  }
+  .stats-btn:active { background: var(--paper-2); transform: scale(0.96); }
+  .stats-btn .dot {
+    width: 6px; height: 6px;
+    background: var(--vermillion);
+    border-radius: 50%;
+    display: none;
+  }
+  .stats-btn .dot.on { display: inline-block; }
+  /* ───── Modal ───── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(27,22,18,0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+  .modal {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    background: var(--paper);
+    width: calc(100vw - 28px);
+    max-width: 540px;
+    max-height: 86vh;
+    border-radius: 18px;
+    z-index: 201;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.45);
+  }
+  .modal.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .modal-head {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--paper-2);
+  }
+  .modal-title {
+    font-family: "Fraunces", serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+  }
+  .modal-title .cn {
+    font-family: "Noto Serif TC", serif;
+    color: var(--vermillion);
+    margin-left: 6px;
+    font-size: 14px;
+  }
+  .modal-close {
+    background: transparent;
+    border: 0;
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .modal-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .modal-tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: transparent;
+    border: 0;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .15s ease;
+  }
+  .modal-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--vermillion);
+    font-weight: 600;
+  }
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(216,201,168,0.4);
+  }
+  .stat-row:last-child { border-bottom: 0; }
+  .stat-rank {
+    width: 22px;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .stat-rank.top { color: var(--vermillion); font-weight: 700; font-style: normal; }
+  .stat-text { flex: 1; min-width: 0; }
+  .stat-cn {
+    font-family: "Noto Serif TC", serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .stat-thai {
+    font-family: "IBM Plex Sans Thai", sans-serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 3px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .stat-thai .py { color: var(--muted); font-style: italic; font-family: "Fraunces", serif; }
+  .stat-count {
+    font-family: "Fraunces", serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vermillion);
+    flex-shrink: 0;
+    text-align: right;
+    line-height: 1;
+  }
+  .stat-count small {
+    font-family: "DM Sans", sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--muted);
+    display: block;
+    text-align: right;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .modal-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    background: var(--paper-2);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stats-summary {
+    flex: 1;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 100%;
+    margin-bottom: 6px;
+  }
+  .modal-foot button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    flex: 1;
+  }
+  .modal-foot button:active { background: var(--paper); }
+  .modal-foot button.danger { color: var(--vermillion); border-color: rgba(184,58,38,0.4); }
+  .stats-empty {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .stats-empty .big {
+    font-family: "Noto Serif TC", serif;
+    font-size: 56px;
+    color: var(--line);
+    margin-bottom: 14px;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button class="stats-btn" id="statsBtn" aria-label="usage statistics">
+      <span class="dot" id="statsDot"></span>
+      <span>สถิติ</span>
+    </button>
+    <div class="seal">食</div>
+    <h1>ค้นหาอาหาร <span class="cn">食物词典</span></h1>
+    <p class="subtitle">พิมพ์ภาษาไทย · ได้ตัวอักษรจีนเพื่อก๊อปไปใช้</p>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input id="q" type="text" placeholder="ติ่มซำ, ก๋วยเตี๋ยว, เป็ดย่าง, ชานม..." autocomplete="off" autocapitalize="off" autocorrect="off">
+      <button class="clear-btn" id="clearBtn" aria-label="clear">✕</button>
+    </div>
+    <div class="cats" id="cats"></div>
+  </div>
+
+  <div class="result-count" id="count"></div>
+  <div class="results" id="results"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Stats Modal -->
+<div class="modal-backdrop" id="statsBackdrop"></div>
+<div class="modal" id="statsModal" role="dialog" aria-labelledby="statsTitle" aria-hidden="true">
+  <div class="modal-head">
+    <h3 class="modal-title" id="statsTitle">สถิติการใช้งาน <span class="cn">使用统计</span></h3>
+    <button class="modal-close" id="statsClose" aria-label="close">✕</button>
+  </div>
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-tab="copies">ที่คัดลอกบ่อย · Copied</button>
+    <button class="modal-tab" data-tab="views">ที่เจอบ่อย · Viewed</button>
+  </div>
+  <div class="modal-body" id="statsBody"></div>
+  <div class="modal-foot">
+    <div class="stats-summary" id="statsSummary">—</div>
+    <button id="statsExport">Export JSON</button>
+    <button id="statsReset" class="danger">Reset</button>
+  </div>
+</div>
+
+<script>
+/* ───── Stats tracking (localStorage) ───── */
+const STATS_KEY = 'thaiCnFoodDict_v1';
+let stats;
+try {
+  const raw = localStorage.getItem(STATS_KEY);
+  stats = raw ? JSON.parse(raw) : null;
+} catch(e) { stats = null; }
+if (!stats || typeof stats !== 'object') {
+  stats = { copies: {}, views: {}, totalCopies: 0, totalSearches: 0, since: Date.now() };
+}
+// migrate missing fields
+stats.copies = stats.copies || {};
+stats.views = stats.views || {};
+stats.totalCopies = stats.totalCopies || 0;
+stats.totalSearches = stats.totalSearches || 0;
+stats.since = stats.since || Date.now();
+
+let statsSaveTimer;
+function saveStats() {
+  clearTimeout(statsSaveTimer);
+  statsSaveTimer = setTimeout(() => {
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch(e) {}
+  }, 250);
+}
+
+function trackCopy(cn) {
+  if (!cn) return;
+  stats.copies[cn] = (stats.copies[cn] || 0) + 1;
+  stats.totalCopies++;
+  saveStats();
+  updateStatsDot();
+}
+
+let lastTrackedQuery = '';
+function trackSearch(items, query) {
+  if (!query || query === lastTrackedQuery) return;
+  lastTrackedQuery = query;
+  stats.totalSearches++;
+  // track top 8 visible results per search
+  items.slice(0, 8).forEach(d => {
+    stats.views[d.cn] = (stats.views[d.cn] || 0) + 1;
+  });
+  saveStats();
+}
+
+function updateStatsDot() {
+  const dot = document.getElementById('statsDot');
+  if (dot) dot.classList.toggle('on', stats.totalCopies > 0);
+}
+
+/* ───── Dictionary ───── */
+const DATA = [
+  // ── ติ่มซำ / Dim Sum ──
+  { thai: "ติ่มซำ", alt: ["ดิมซำ","dim sum"], cn: "点心", py: "diǎn xīn", en: "dim sum", cat: "dimsum" },
+  { thai: "ฮะเก๋า", alt: ["ฮะเก่า","ฮะเกา","har gow"], cn: "虾饺", py: "xiā jiǎo", en: "shrimp dumpling", cat: "dimsum" },
+  { thai: "ขนมจีบ", alt: ["siu mai","shumai"], cn: "烧卖", py: "shāo mài", en: "siu mai / pork dumpling", cat: "dimsum" },
+  { thai: "ซาลาเปา", alt: ["บะจ่าง","baozi"], cn: "包子", py: "bāo zi", en: "steamed bun", cat: "dimsum" },
+  { thai: "ซาลาเปาหมูแดง", alt: ["char siu bao"], cn: "叉烧包", py: "chā shāo bāo", en: "BBQ pork bun", cat: "dimsum" },
+  { thai: "ซาลาเปาไส้ครีม", alt: ["ไส้คัสตาร์ด","custard bun"], cn: "奶黄包", py: "nǎi huáng bāo", en: "custard bun", cat: "dimsum" },
+  { thai: "หมั่นโถว", alt: ["mantou"], cn: "馒头", py: "mán tou", en: "plain steamed bun", cat: "dimsum" },
+  { thai: "ขนมกุยช่าย", alt: ["กุยช่าย"], cn: "韭菜饺", py: "jiǔ cài jiǎo", en: "chive dumpling", cat: "dimsum" },
+  { thai: "ปอเปี๊ยะทอด", alt: ["ปอเปี๊ยะ","spring roll"], cn: "春卷", py: "chūn juǎn", en: "spring roll", cat: "dimsum" },
+  { thai: "เกี๊ยวซ่า", alt: ["gyoza","potsticker"], cn: "锅贴", py: "guō tiē", en: "pan-fried dumpling", cat: "dimsum" },
+  { thai: "เกี๊ยว", alt: ["jiaozi","dumpling"], cn: "饺子", py: "jiǎo zi", en: "dumpling (jiaozi)", cat: "dimsum" },
+  { thai: "เกี๊ยวน้ำ", alt: ["boiled dumpling"], cn: "水饺", py: "shuǐ jiǎo", en: "boiled dumpling", cat: "dimsum" },
+  { thai: "ตีนไก่อบเต้าซี่", alt: ["ตีนไก่ติ่มซำ","chicken feet"], cn: "豉汁凤爪", py: "chǐ zhī fèng zhǎo", en: "chicken feet in black bean sauce", cat: "dimsum" },
+  { thai: "ซี่โครงหมูนึ่ง", alt: ["ซี่โครงนึ่ง"], cn: "蒸排骨", py: "zhēng pái gǔ", en: "steamed pork ribs", cat: "dimsum" },
+  { thai: "ขนมเปี๊ยะหมูแดง", alt: [], cn: "叉烧酥", py: "chā shāo sū", en: "BBQ pork pastry", cat: "dimsum" },
+  { thai: "ข้าวเหนียวห่อใบบัว", alt: ["lotus leaf rice"], cn: "荷叶饭", py: "hé yè fàn", en: "lotus leaf sticky rice", cat: "dimsum" },
+  { thai: "ก๋วยเตี๋ยวหลอด", alt: ["cheung fun"], cn: "肠粉", py: "cháng fěn", en: "rice noodle roll (cheung fun)", cat: "dimsum" },
+  { thai: "เผือกทอด", alt: ["taro puff"], cn: "芋角", py: "yù jiǎo", en: "taro puff", cat: "dimsum" },
+  { thai: "ทาร์ตไข่", alt: ["ทาร์ตไข่จีน","egg tart"], cn: "蛋挞", py: "dàn tà", en: "egg tart", cat: "dimsum" },
+  { thai: "ขนมผักกาด", alt: ["turnip cake"], cn: "萝卜糕", py: "luó bo gāo", en: "turnip cake", cat: "dimsum" },
+  { thai: "ขนมเข่ง", alt: ["nian gao"], cn: "年糕", py: "nián gāo", en: "sticky rice cake (nian gao)", cat: "dimsum" },
+
+  // ── ของกินเล่น / Snacks ──
+  { thai: "ปาท่องโก๋", alt: ["youtiao"], cn: "油条", py: "yóu tiáo", en: "fried dough stick", cat: "snack" },
+  { thai: "ขนมไหว้พระจันทร์", alt: ["ขนมเปี๊ยะจีน","mooncake"], cn: "月饼", py: "yuè bǐng", en: "mooncake", cat: "snack" },
+  { thai: "ขนมเปี๊ยะ", alt: [], cn: "老婆饼", py: "lǎo pó bǐng", en: "wife cake", cat: "snack" },
+  { thai: "เกาลัด", alt: ["chestnut"], cn: "栗子", py: "lì zi", en: "chestnut", cat: "snack" },
+  { thai: "ลูกเดือย", alt: [], cn: "薏米", py: "yì mǐ", en: "job's tears", cat: "snack" },
+  { thai: "เม็ดบัว", alt: [], cn: "莲子", py: "lián zǐ", en: "lotus seed", cat: "snack" },
+  { thai: "เต้าฮวย", alt: ["tofu pudding"], cn: "豆花", py: "dòu huā", en: "tofu pudding", cat: "snack" },
+  { thai: "เฉาก๊วย", alt: ["grass jelly"], cn: "凉粉", py: "liáng fěn", en: "grass jelly", cat: "snack" },
+  { thai: "บัวลอย", alt: ["tangyuan"], cn: "汤圆", py: "tāng yuán", en: "tangyuan (glutinous rice ball)", cat: "snack" },
+  { thai: "ข้าวเกรียบ", alt: [], cn: "虾片", py: "xiā piàn", en: "shrimp chips", cat: "snack" },
+  { thai: "กุนเชียง", alt: ["chinese sausage","ไส้กรอกจีน"], cn: "腊肠", py: "là cháng", en: "Chinese sausage", cat: "snack" },
+  { thai: "หมูยอ", alt: [], cn: "猪肉肠", py: "zhū ròu cháng", en: "pork sausage / luncheon", cat: "snack" },
+  { thai: "ลูกชิ้นปลา", alt: [], cn: "鱼丸", py: "yú wán", en: "fish ball", cat: "snack" },
+  { thai: "ลูกชิ้นเนื้อ", alt: [], cn: "牛肉丸", py: "niú ròu wán", en: "beef ball", cat: "snack" },
+  { thai: "หมูปิ้ง", alt: [], cn: "烤肉串", py: "kǎo ròu chuàn", en: "grilled pork skewer", cat: "snack" },
+  { thai: "ปิ้งย่างไม้", alt: ["ชวนช่วน","chuan'r"], cn: "烤串", py: "kǎo chuàn", en: "BBQ skewer (chuan'r)", cat: "snack" },
+
+  // ── ก๋วยเตี๋ยว/บะหมี่ / Noodles ──
+  { thai: "บะหมี่", alt: ["egg noodle"], cn: "面条", py: "miàn tiáo", en: "noodles", cat: "noodle" },
+  { thai: "บะหมี่หมูแดง", alt: [], cn: "叉烧面", py: "chā shāo miàn", en: "BBQ pork noodle", cat: "noodle" },
+  { thai: "บะหมี่เป็ด", alt: [], cn: "鸭肉面", py: "yā ròu miàn", en: "duck noodle", cat: "noodle" },
+  { thai: "บะหมี่เกี๊ยว", alt: ["wonton noodle"], cn: "云吞面", py: "yún tūn miàn", en: "wonton noodle", cat: "noodle" },
+  { thai: "เกี๊ยวน้ำ", alt: ["wonton"], cn: "云吞", py: "yún tūn", en: "wonton", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยว", alt: ["rice noodle"], cn: "粿条", py: "guǒ tiáo", en: "rice noodle (flat)", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเส้นใหญ่", alt: ["ho fun"], cn: "河粉", py: "hé fěn", en: "wide rice noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเส้นเล็ก", alt: ["rice vermicelli"], cn: "米粉", py: "mǐ fěn", en: "thin rice noodle", cat: "noodle" },
+  { thai: "วุ้นเส้น", alt: ["glass noodle"], cn: "粉丝", py: "fěn sī", en: "glass noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเนื้อ", alt: ["beef noodle"], cn: "牛肉面", py: "niú ròu miàn", en: "beef noodle soup", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวลูกชิ้น", alt: [], cn: "丸子粉", py: "wán zi fěn", en: "meatball noodle", cat: "noodle" },
+  { thai: "ราเมง", alt: ["ramen","ราเม็ง"], cn: "拉面", py: "lā miàn", en: "ramen / hand-pulled noodle", cat: "noodle" },
+  { thai: "บะหมี่ผัด", alt: ["chow mein","ผัดบะหมี่"], cn: "炒面", py: "chǎo miàn", en: "stir-fried noodle (chow mein)", cat: "noodle" },
+  { thai: "ผัดซีอิ๊ว", alt: [], cn: "炒粿条", py: "chǎo guǒ tiáo", en: "stir-fried rice noodle", cat: "noodle" },
+  { thai: "บะหมี่หยก", alt: [], cn: "翡翠面", py: "fěi cuì miàn", en: "jade (spinach) noodle", cat: "noodle" },
+  { thai: "ก๋วยจั๊บ", alt: [], cn: "粿汁", py: "guǒ zhī", en: "rolled rice noodle soup", cat: "noodle" },
+  { thai: "บะหมี่น้ำ", alt: ["noodle soup"], cn: "汤面", py: "tāng miàn", en: "noodle soup", cat: "noodle" },
+  { thai: "หมี่ซั่ว", alt: ["misua"], cn: "面线", py: "miàn xiàn", en: "thin wheat noodle (misua)", cat: "noodle" },
+  { thai: "บะหมี่แห้ง", alt: [], cn: "干面", py: "gān miàn", en: "dry noodle (no soup)", cat: "noodle" },
+  { thai: "บะหมี่ตันตัน", alt: ["dan dan"], cn: "担担面", py: "dàn dàn miàn", en: "dan dan noodle", cat: "noodle" },
+  { thai: "บะหมี่ผัดจาจัง", alt: [], cn: "炸酱面", py: "zhá jiàng miàn", en: "zhajiangmian (bean sauce noodle)", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวต้มยำ", alt: [], cn: "酸辣粉", py: "suān là fěn", en: "sour & spicy noodle", cat: "noodle" },
+
+  // ── ข้าว / Rice ──
+  { thai: "ข้าวสวย", alt: ["ข้าว","rice"], cn: "米饭", py: "mǐ fàn", en: "steamed rice", cat: "rice" },
+  { thai: "ข้าวต้ม", alt: [], cn: "稀饭", py: "xī fàn", en: "rice soup / thin congee", cat: "rice" },
+  { thai: "โจ๊ก", alt: ["congee"], cn: "粥", py: "zhōu", en: "congee / rice porridge", cat: "rice" },
+  { thai: "ข้าวผัด", alt: ["fried rice"], cn: "炒饭", py: "chǎo fàn", en: "fried rice", cat: "rice" },
+  { thai: "ข้าวผัดหมู", alt: [], cn: "猪肉炒饭", py: "zhū ròu chǎo fàn", en: "pork fried rice", cat: "rice" },
+  { thai: "ข้าวผัดกุ้ง", alt: [], cn: "虾仁炒饭", py: "xiā rén chǎo fàn", en: "shrimp fried rice", cat: "rice" },
+  { thai: "ข้าวผัดปู", alt: [], cn: "蟹肉炒饭", py: "xiè ròu chǎo fàn", en: "crab fried rice", cat: "rice" },
+  { thai: "ข้าวผัดหยางโจว", alt: [], cn: "扬州炒饭", py: "yáng zhōu chǎo fàn", en: "Yangzhou fried rice", cat: "rice" },
+  { thai: "ข้าวมันไก่", alt: ["hainanese chicken rice"], cn: "海南鸡饭", py: "hǎi nán jī fàn", en: "Hainanese chicken rice", cat: "rice" },
+  { thai: "ข้าวหมูแดง", alt: [], cn: "叉烧饭", py: "chā shāo fàn", en: "BBQ pork rice", cat: "rice" },
+  { thai: "ข้าวหมูกรอบ", alt: [], cn: "烧肉饭", py: "shāo ròu fàn", en: "crispy pork rice", cat: "rice" },
+  { thai: "ข้าวเป็ดย่าง", alt: [], cn: "烧鸭饭", py: "shāo yā fàn", en: "roast duck rice", cat: "rice" },
+  { thai: "ข้าวขาหมู", alt: [], cn: "卤猪脚饭", py: "lǔ zhū jiǎo fàn", en: "stewed pork leg rice", cat: "rice" },
+  { thai: "ข้าวหน้าเป็ดพะโล้", alt: [], cn: "卤鸭饭", py: "lǔ yā fàn", en: "braised duck rice", cat: "rice" },
+  { thai: "ข้าวเหนียว", alt: ["sticky rice"], cn: "糯米饭", py: "nuò mǐ fàn", en: "glutinous rice", cat: "rice" },
+  { thai: "ข้าวกล้อง", alt: [], cn: "糙米饭", py: "cāo mǐ fàn", en: "brown rice", cat: "rice" },
+
+  // ── เนื้อ / Meat ──
+  { thai: "หมู", alt: ["pork"], cn: "猪肉", py: "zhū ròu", en: "pork", cat: "meat" },
+  { thai: "เนื้อวัว", alt: ["beef","เนื้อ"], cn: "牛肉", py: "niú ròu", en: "beef", cat: "meat" },
+  { thai: "ไก่", alt: ["chicken"], cn: "鸡肉", py: "jī ròu", en: "chicken", cat: "meat" },
+  { thai: "เป็ด", alt: ["duck"], cn: "鸭肉", py: "yā ròu", en: "duck", cat: "meat" },
+  { thai: "แกะ", alt: ["lamb","เนื้อแกะ"], cn: "羊肉", py: "yáng ròu", en: "lamb / mutton", cat: "meat" },
+  { thai: "หมูสามชั้น", alt: [], cn: "五花肉", py: "wǔ huā ròu", en: "pork belly", cat: "meat" },
+  { thai: "หมูแดง", alt: ["char siu"], cn: "叉烧", py: "chā shāo", en: "char siu (BBQ pork)", cat: "meat" },
+  { thai: "หมูกรอบ", alt: ["crispy pork"], cn: "脆皮烧肉", py: "cuì pí shāo ròu", en: "crispy pork belly", cat: "meat" },
+  { thai: "หมูตุ๋นซีอิ๊ว", alt: ["red braised pork"], cn: "红烧肉", py: "hóng shāo ròu", en: "red-braised pork", cat: "meat" },
+  { thai: "ตงโพหมู", alt: [], cn: "东坡肉", py: "dōng pō ròu", en: "Dongpo pork", cat: "meat" },
+  { thai: "ขาหมูพะโล้", alt: [], cn: "卤猪脚", py: "lǔ zhū jiǎo", en: "braised pork leg", cat: "meat" },
+  { thai: "เป็ดย่าง", alt: ["roast duck"], cn: "烧鸭", py: "shāo yā", en: "roast duck", cat: "meat" },
+  { thai: "เป็ดปักกิ่ง", alt: ["peking duck"], cn: "北京烤鸭", py: "běi jīng kǎo yā", en: "Peking duck", cat: "meat" },
+  { thai: "เป็ดพะโล้", alt: [], cn: "卤鸭", py: "lǔ yā", en: "braised duck", cat: "meat" },
+  { thai: "ไก่ทอด", alt: ["fried chicken"], cn: "炸鸡", py: "zhá jī", en: "fried chicken", cat: "meat" },
+  { thai: "ไก่ผัดเม็ดมะม่วง", alt: [], cn: "腰果鸡丁", py: "yāo guǒ jī dīng", en: "cashew chicken", cat: "meat" },
+  { thai: "ไก่กังเปา", alt: ["kung pao"], cn: "宫保鸡丁", py: "gōng bǎo jī dīng", en: "kung pao chicken", cat: "meat" },
+  { thai: "หมูเปรี้ยวหวาน", alt: ["sweet and sour pork"], cn: "糖醋里脊", py: "táng cù lǐ jǐ", en: "sweet & sour pork", cat: "meat" },
+  { thai: "ไก่เปรี้ยวหวาน", alt: [], cn: "糖醋鸡", py: "táng cù jī", en: "sweet & sour chicken", cat: "meat" },
+  { thai: "เนื้อผัดน้ำมันหอย", alt: [], cn: "蚝油牛肉", py: "háo yóu niú ròu", en: "oyster sauce beef", cat: "meat" },
+  { thai: "มาโป้เต้าหู้", alt: ["mapo tofu"], cn: "麻婆豆腐", py: "má pó dòu fu", en: "mapo tofu", cat: "meat" },
+  { thai: "เนื้อผัดพริก", alt: [], cn: "辣椒牛肉", py: "là jiāo niú ròu", en: "chili beef stir-fry", cat: "meat" },
+  { thai: "ไก่ตุ๋นเห็ดหอม", alt: [], cn: "香菇鸡", py: "xiāng gū jī", en: "shiitake chicken stew", cat: "meat" },
+  { thai: "ไก่ผัดขิง", alt: [], cn: "姜葱鸡", py: "jiāng cōng jī", en: "ginger scallion chicken", cat: "meat" },
+  { thai: "หมูผัดขิง", alt: [], cn: "姜葱猪肉", py: "jiāng cōng zhū ròu", en: "ginger scallion pork", cat: "meat" },
+  { thai: "หมูทอดกระเทียม", alt: [], cn: "蒜香猪肉", py: "suàn xiāng zhū ròu", en: "garlic fried pork", cat: "meat" },
+
+  // ── ทะเล / Seafood ──
+  { thai: "ปลา", alt: ["fish"], cn: "鱼", py: "yú", en: "fish", cat: "seafood" },
+  { thai: "กุ้ง", alt: ["shrimp","prawn"], cn: "虾", py: "xiā", en: "shrimp", cat: "seafood" },
+  { thai: "ปู", alt: ["crab"], cn: "螃蟹", py: "páng xiè", en: "crab", cat: "seafood" },
+  { thai: "ปลาหมึก", alt: ["squid"], cn: "鱿鱼", py: "yóu yú", en: "squid", cat: "seafood" },
+  { thai: "หอย", alt: ["clam","shellfish"], cn: "蛤", py: "gé", en: "clam / shellfish", cat: "seafood" },
+  { thai: "หอยนางรม", alt: ["oyster"], cn: "生蚝", py: "shēng háo", en: "oyster", cat: "seafood" },
+  { thai: "หอยเชลล์", alt: ["scallop"], cn: "扇贝", py: "shàn bèi", en: "scallop", cat: "seafood" },
+  { thai: "กั้ง", alt: ["mantis shrimp"], cn: "皮皮虾", py: "pí pí xiā", en: "mantis shrimp", cat: "seafood" },
+  { thai: "ล็อบสเตอร์", alt: ["lobster","กุ้งล็อบสเตอร์"], cn: "龙虾", py: "lóng xiā", en: "lobster", cat: "seafood" },
+  { thai: "ปลานึ่งซีอิ๊ว", alt: [], cn: "清蒸鱼", py: "qīng zhēng yú", en: "steamed fish with soy sauce", cat: "seafood" },
+  { thai: "ปลาเปรี้ยวหวาน", alt: [], cn: "糖醋鱼", py: "táng cù yú", en: "sweet & sour fish", cat: "seafood" },
+  { thai: "ปลาเก๋านึ่ง", alt: [], cn: "清蒸石斑鱼", py: "qīng zhēng shí bān yú", en: "steamed grouper", cat: "seafood" },
+  { thai: "กุ้งอบวุ้นเส้น", alt: [], cn: "粉丝虾煲", py: "fěn sī xiā bāo", en: "shrimp & glass noodle pot", cat: "seafood" },
+  { thai: "กุ้งทอด", alt: [], cn: "炸虾", py: "zhá xiā", en: "fried shrimp", cat: "seafood" },
+  { thai: "กุ้งย่าง", alt: [], cn: "烤虾", py: "kǎo xiā", en: "grilled shrimp", cat: "seafood" },
+  { thai: "ปูผัดผงกะหรี่", alt: [], cn: "咖喱蟹", py: "gā lí xiè", en: "curry crab", cat: "seafood" },
+  { thai: "ปูนึ่ง", alt: [], cn: "蒸蟹", py: "zhēng xiè", en: "steamed crab", cat: "seafood" },
+  { thai: "ปลาหมึกย่าง", alt: [], cn: "烤鱿鱼", py: "kǎo yóu yú", en: "grilled squid", cat: "seafood" },
+  { thai: "หูฉลาม", alt: [], cn: "鱼翅", py: "yú chì", en: "shark fin", cat: "seafood" },
+  { thai: "รังนก", alt: [], cn: "燕窝", py: "yàn wō", en: "bird's nest", cat: "seafood" },
+  { thai: "เป๋าฮื้อ", alt: ["abalone"], cn: "鲍鱼", py: "bào yú", en: "abalone", cat: "seafood" },
+  { thai: "ปลิงทะเล", alt: ["sea cucumber"], cn: "海参", py: "hǎi shēn", en: "sea cucumber", cat: "seafood" },
+  { thai: "แมงกะพรุน", alt: ["jellyfish"], cn: "海蜇", py: "hǎi zhé", en: "jellyfish", cat: "seafood" },
+
+  // ── ผัก / Veg ──
+  { thai: "ผัก", alt: ["vegetable"], cn: "蔬菜", py: "shū cài", en: "vegetable", cat: "veg" },
+  { thai: "ผัดผักบุ้ง", alt: ["ผักบุ้ง","morning glory"], cn: "炒空心菜", py: "chǎo kōng xīn cài", en: "stir-fried morning glory", cat: "veg" },
+  { thai: "ผัดผักรวม", alt: [], cn: "炒杂菜", py: "chǎo zá cài", en: "mixed vegetable stir-fry", cat: "veg" },
+  { thai: "คะน้าน้ำมันหอย", alt: [], cn: "蚝油芥兰", py: "háo yóu jiè lán", en: "Chinese broccoli with oyster sauce", cat: "veg" },
+  { thai: "ผัดผักกาด", alt: [], cn: "炒白菜", py: "chǎo bái cài", en: "stir-fried cabbage", cat: "veg" },
+  { thai: "ผัดบร็อคโคลี่", alt: [], cn: "炒西兰花", py: "chǎo xī lán huā", en: "stir-fried broccoli", cat: "veg" },
+  { thai: "เห็ดผัด", alt: [], cn: "炒蘑菇", py: "chǎo mó gu", en: "stir-fried mushroom", cat: "veg" },
+  { thai: "เต้าหู้", alt: ["tofu"], cn: "豆腐", py: "dòu fu", en: "tofu", cat: "veg" },
+  { thai: "เต้าหู้ทอด", alt: [], cn: "炸豆腐", py: "zhá dòu fu", en: "fried tofu", cat: "veg" },
+  { thai: "ฟัก", alt: [], cn: "冬瓜", py: "dōng guā", en: "winter melon", cat: "veg" },
+  { thai: "มะเขือยาว", alt: [], cn: "茄子", py: "qié zi", en: "eggplant", cat: "veg" },
+  { thai: "ถั่วฝักยาว", alt: [], cn: "豆角", py: "dòu jiǎo", en: "long bean", cat: "veg" },
+
+  // ── ซุป/หม้อไฟ ──
+  { thai: "ซุป", alt: ["soup"], cn: "汤", py: "tāng", en: "soup", cat: "soup" },
+  { thai: "หม้อไฟ", alt: ["สุกี้","hotpot"], cn: "火锅", py: "huǒ guō", en: "hotpot", cat: "soup" },
+  { thai: "ชาบู", alt: ["shabu"], cn: "涮锅", py: "shuàn guō", en: "shabu hotpot", cat: "soup" },
+  { thai: "หม้อไฟเสฉวน", alt: ["sichuan hotpot"], cn: "四川火锅", py: "sì chuān huǒ guō", en: "Sichuan hotpot", cat: "soup" },
+  { thai: "ซุปเป็ด", alt: [], cn: "鸭汤", py: "yā tāng", en: "duck soup", cat: "soup" },
+  { thai: "ซุปไก่ตุ๋น", alt: [], cn: "鸡汤", py: "jī tāng", en: "chicken soup", cat: "soup" },
+  { thai: "ซุปเปรี้ยวเผ็ด", alt: ["hot and sour soup"], cn: "酸辣汤", py: "suān là tāng", en: "hot & sour soup", cat: "soup" },
+  { thai: "ซุปข้าวโพด", alt: [], cn: "玉米汤", py: "yù mǐ tāng", en: "corn soup", cat: "soup" },
+  { thai: "ซุปไข่", alt: ["egg drop soup"], cn: "蛋花汤", py: "dàn huā tāng", en: "egg drop soup", cat: "soup" },
+  { thai: "ตุ๋นยาจีน", alt: [], cn: "药膳汤", py: "yào shàn tāng", en: "herbal soup", cat: "soup" },
+
+  // ── ของหวาน / Dessert ──
+  { thai: "ของหวาน", alt: ["dessert"], cn: "甜品", py: "tián pǐn", en: "dessert", cat: "dessert" },
+  { thai: "ไอศกรีม", alt: ["ไอติม","ice cream"], cn: "冰淇淋", py: "bīng qí lín", en: "ice cream", cat: "dessert" },
+  { thai: "น้ำแข็งใส", alt: [], cn: "刨冰", py: "bào bīng", en: "shaved ice", cat: "dessert" },
+  { thai: "บิงซู", alt: [], cn: "雪花冰", py: "xuě huā bīng", en: "snowflake ice / bingsu", cat: "dessert" },
+  { thai: "พุดดิ้งมะม่วง", alt: [], cn: "芒果布丁", py: "máng guǒ bù dīng", en: "mango pudding", cat: "dessert" },
+  { thai: "ข้าวเหนียวมะม่วง", alt: [], cn: "芒果糯米饭", py: "máng guǒ nuò mǐ fàn", en: "mango sticky rice", cat: "dessert" },
+  { thai: "ขนมเค้ก", alt: ["cake"], cn: "蛋糕", py: "dàn gāo", en: "cake", cat: "dessert" },
+  { thai: "พุดดิ้ง", alt: ["pudding"], cn: "布丁", py: "bù dīng", en: "pudding", cat: "dessert" },
+  { thai: "ครีมบรูเล่", alt: ["double skin milk"], cn: "双皮奶", py: "shuāng pí nǎi", en: "double skin milk", cat: "dessert" },
+
+  // ── เครื่องดื่ม / Drinks ──
+  { thai: "น้ำเปล่า", alt: ["น้ำ","water"], cn: "水", py: "shuǐ", en: "water", cat: "drink" },
+  { thai: "น้ำแร่", alt: [], cn: "矿泉水", py: "kuàng quán shuǐ", en: "mineral water", cat: "drink" },
+  { thai: "น้ำร้อน", alt: [], cn: "热水", py: "rè shuǐ", en: "hot water", cat: "drink" },
+  { thai: "น้ำเย็น", alt: [], cn: "冰水", py: "bīng shuǐ", en: "cold water / iced", cat: "drink" },
+  { thai: "ชา", alt: ["น้ำชา","tea"], cn: "茶", py: "chá", en: "tea", cat: "drink" },
+  { thai: "ชาเขียว", alt: ["green tea"], cn: "绿茶", py: "lǜ chá", en: "green tea", cat: "drink" },
+  { thai: "ชาดำ", alt: ["red tea"], cn: "红茶", py: "hóng chá", en: "black/red tea", cat: "drink" },
+  { thai: "ชาอู่หลง", alt: ["oolong"], cn: "乌龙茶", py: "wū lóng chá", en: "oolong tea", cat: "drink" },
+  { thai: "ชามะลิ", alt: ["jasmine tea"], cn: "茉莉花茶", py: "mò li huā chá", en: "jasmine tea", cat: "drink" },
+  { thai: "ชาผูเอ๋อร์", alt: ["puerh"], cn: "普洱茶", py: "pǔ ěr chá", en: "pu'er tea", cat: "drink" },
+  { thai: "ชาเก๊กฮวย", alt: ["น้ำเก๊กฮวย"], cn: "菊花茶", py: "jú huā chá", en: "chrysanthemum tea", cat: "drink" },
+  { thai: "ชานม", alt: ["milk tea"], cn: "奶茶", py: "nǎi chá", en: "milk tea", cat: "drink" },
+  { thai: "ชานมไข่มุก", alt: ["bubble tea","boba"], cn: "珍珠奶茶", py: "zhēn zhū nǎi chá", en: "bubble tea", cat: "drink" },
+  { thai: "กาแฟ", alt: ["coffee"], cn: "咖啡", py: "kā fēi", en: "coffee", cat: "drink" },
+  { thai: "กาแฟดำ", alt: [], cn: "黑咖啡", py: "hēi kā fēi", en: "black coffee", cat: "drink" },
+  { thai: "ลาเต้", alt: ["latte"], cn: "拿铁", py: "ná tiě", en: "latte", cat: "drink" },
+  { thai: "อเมริกาโน", alt: ["americano"], cn: "美式咖啡", py: "měi shì kā fēi", en: "americano", cat: "drink" },
+  { thai: "คาปูชิโน", alt: ["cappuccino"], cn: "卡布奇诺", py: "kǎ bù qí nuò", en: "cappuccino", cat: "drink" },
+  { thai: "น้ำเต้าหู้", alt: ["soy milk"], cn: "豆浆", py: "dòu jiāng", en: "soy milk", cat: "drink" },
+  { thai: "นม", alt: ["milk"], cn: "牛奶", py: "niú nǎi", en: "milk", cat: "drink" },
+  { thai: "น้ำมะพร้าว", alt: [], cn: "椰子水", py: "yē zi shuǐ", en: "coconut water", cat: "drink" },
+  { thai: "น้ำส้ม", alt: ["orange juice"], cn: "橙汁", py: "chéng zhī", en: "orange juice", cat: "drink" },
+  { thai: "น้ำมะนาว", alt: ["lemonade"], cn: "柠檬水", py: "níng méng shuǐ", en: "lemonade", cat: "drink" },
+  { thai: "น้ำผลไม้", alt: [], cn: "果汁", py: "guǒ zhī", en: "fruit juice", cat: "drink" },
+  { thai: "เบียร์", alt: ["beer"], cn: "啤酒", py: "pí jiǔ", en: "beer", cat: "drink" },
+  { thai: "ไวน์แดง", alt: [], cn: "红酒", py: "hóng jiǔ", en: "red wine", cat: "drink" },
+  { thai: "ไวน์ขาว", alt: [], cn: "白葡萄酒", py: "bái pú táo jiǔ", en: "white wine", cat: "drink" },
+  { thai: "เหล้าจีน", alt: ["baijiu","เหล้าขาว"], cn: "白酒", py: "bái jiǔ", en: "baijiu (Chinese liquor)", cat: "drink" },
+  { thai: "โค้ก", alt: ["coke","โคล่า"], cn: "可乐", py: "kě lè", en: "Coca-Cola / cola", cat: "drink" },
+  { thai: "น้ำอัดลม", alt: ["soda"], cn: "汽水", py: "qì shuǐ", en: "soda / soft drink", cat: "drink" },
+
+  // ── อาหารไทย / Thai ──
+  { thai: "ต้มยำกุ้ง", alt: ["tom yum"], cn: "冬阴功汤", py: "dōng yīn gōng tāng", en: "tom yum goong", cat: "thai" },
+  { thai: "ผัดไทย", alt: ["pad thai"], cn: "泰式炒粉", py: "tài shì chǎo fěn", en: "pad thai", cat: "thai" },
+  { thai: "ส้มตำ", alt: ["som tam","papaya salad"], cn: "青木瓜沙拉", py: "qīng mù guā shā lā", en: "som tam (green papaya salad)", cat: "thai" },
+  { thai: "ผัดกะเพรา", alt: ["pad krapao","กระเพรา"], cn: "罗勒炒肉", py: "luó lè chǎo ròu", en: "Thai basil stir-fry", cat: "thai" },
+  { thai: "แกงเขียวหวาน", alt: ["green curry"], cn: "绿咖喱", py: "lǜ gā lí", en: "green curry", cat: "thai" },
+  { thai: "แกงเผ็ด", alt: ["red curry"], cn: "红咖喱", py: "hóng gā lí", en: "red curry", cat: "thai" },
+  { thai: "มัสมั่น", alt: ["massaman"], cn: "玛莎曼咖喱", py: "mǎ shā màn gā lí", en: "massaman curry", cat: "thai" },
+  { thai: "ข้าวซอย", alt: ["khao soi"], cn: "泰北咖喱面", py: "tài běi gā lí miàn", en: "khao soi", cat: "thai" },
+  { thai: "หมูสะเต๊ะ", alt: ["satay"], cn: "沙爹", py: "shā diē", en: "satay", cat: "thai" },
+  { thai: "ทอดมัน", alt: ["fish cake"], cn: "泰式鱼饼", py: "tài shì yú bǐng", en: "Thai fish cake", cat: "thai" },
+  { thai: "ลาบ", alt: ["larb"], cn: "泰式肉沫沙拉", py: "tài shì ròu mò shā lā", en: "larb (Thai meat salad)", cat: "thai" },
+  { thai: "แกงเหลือง", alt: [], cn: "黄咖喱", py: "huáng gā lí", en: "yellow curry", cat: "thai" },
+  { thai: "ปลาเผา", alt: [], cn: "盐烤鱼", py: "yán kǎo yú", en: "salt-grilled fish", cat: "thai" },
+  { thai: "น้ำพริก", alt: [], cn: "泰式辣酱", py: "tài shì là jiàng", en: "Thai chili dip (nam prik)", cat: "thai" },
+  { thai: "ยำวุ้นเส้น", alt: [], cn: "泰式凉拌粉丝", py: "tài shì liáng bàn fěn sī", en: "spicy glass noodle salad", cat: "thai" },
+
+  // ── ญี่ปุ่น / Japanese ──
+  { thai: "ซูชิ", alt: ["sushi"], cn: "寿司", py: "shòu sī", en: "sushi", cat: "jp" },
+  { thai: "ซาชิมิ", alt: ["sashimi"], cn: "生鱼片", py: "shēng yú piàn", en: "sashimi", cat: "jp" },
+  { thai: "อุด้ง", alt: ["udon"], cn: "乌冬面", py: "wū dōng miàn", en: "udon", cat: "jp" },
+  { thai: "โซบะ", alt: ["soba"], cn: "荞麦面", py: "qiáo mài miàn", en: "soba", cat: "jp" },
+  { thai: "เทมปุระ", alt: ["tempura"], cn: "天妇罗", py: "tiān fù luó", en: "tempura", cat: "jp" },
+  { thai: "ทงคัตสึ", alt: ["tonkatsu"], cn: "炸猪排", py: "zhá zhū pái", en: "tonkatsu", cat: "jp" },
+  { thai: "ยากิโทริ", alt: ["yakitori"], cn: "烤鸡串", py: "kǎo jī chuàn", en: "yakitori", cat: "jp" },
+  { thai: "ยากินิคุ", alt: ["yakiniku"], cn: "日式烧肉", py: "rì shì shāo ròu", en: "yakiniku", cat: "jp" },
+  { thai: "ทาโกะยากิ", alt: ["takoyaki"], cn: "章鱼烧", py: "zhāng yú shāo", en: "takoyaki", cat: "jp" },
+  { thai: "โอโคโนมิยากิ", alt: ["okonomiyaki"], cn: "大阪烧", py: "dà bǎn shāo", en: "okonomiyaki", cat: "jp" },
+  { thai: "มัทฉะ", alt: ["matcha"], cn: "抹茶", py: "mǒ chá", en: "matcha", cat: "jp" },
+  { thai: "ข้าวปั้น", alt: ["onigiri"], cn: "饭团", py: "fàn tuán", en: "onigiri / rice ball", cat: "jp" },
+  { thai: "มิโซะ", alt: ["miso"], cn: "味噌汤", py: "wèi cēng tāng", en: "miso soup", cat: "jp" },
+  { thai: "นัตโตะ", alt: ["natto"], cn: "纳豆", py: "nà dòu", en: "natto", cat: "jp" },
+  { thai: "เนื้อย่าง", alt: [], cn: "烤牛肉", py: "kǎo niú ròu", en: "grilled beef", cat: "jp" },
+
+  // ── เกาหลี / Korean ──
+  { thai: "กิมจิ", alt: ["kimchi"], cn: "泡菜", py: "pào cài", en: "kimchi", cat: "kr" },
+  { thai: "บิบิมบับ", alt: ["bibimbap"], cn: "韩式拌饭", py: "hán shì bàn fàn", en: "bibimbap", cat: "kr" },
+  { thai: "บลูโกกี", alt: ["bulgogi","บูลโกกิ"], cn: "韩式烤肉", py: "hán shì kǎo ròu", en: "bulgogi", cat: "kr" },
+  { thai: "ต๊อกบกกี", alt: ["tteokbokki"], cn: "炒年糕", py: "chǎo nián gāo", en: "tteokbokki", cat: "kr" },
+  { thai: "ซัมเกทัง", alt: ["samgyetang"], cn: "参鸡汤", py: "shēn jī tāng", en: "samgyetang (ginseng chicken soup)", cat: "kr" },
+  { thai: "กิมบับ", alt: ["kimbap"], cn: "紫菜包饭", py: "zǐ cài bāo fàn", en: "kimbap", cat: "kr" },
+  { thai: "จาจังมยอน", alt: ["jjajangmyeon"], cn: "炸酱面", py: "zhá jiàng miàn", en: "jjajangmyeon", cat: "kr" },
+  { thai: "ซุนดูบู", alt: ["sundubu"], cn: "嫩豆腐汤", py: "nèn dòu fu tāng", en: "soft tofu stew", cat: "kr" },
+  { thai: "โบสซัม", alt: ["bossam"], cn: "菜包肉", py: "cài bāo ròu", en: "bossam", cat: "kr" },
+  { thai: "ซัมกยอบซัล", alt: ["samgyeopsal"], cn: "韩式五花肉", py: "hán shì wǔ huā ròu", en: "samgyeopsal", cat: "kr" },
+
+  // ── เวียดนาม + อื่นๆ ──
+  { thai: "เฝอ", alt: ["pho"], cn: "越南河粉", py: "yuè nán hé fěn", en: "pho", cat: "other" },
+  { thai: "ปอเปี๊ยะเวียดนาม", alt: ["แหนมเนือง"], cn: "越南春卷", py: "yuè nán chūn juǎn", en: "Vietnamese spring roll", cat: "other" },
+  { thai: "บั๋นหมี่", alt: ["banh mi"], cn: "越南法包", py: "yuè nán fǎ bāo", en: "banh mi", cat: "other" },
+  { thai: "ลักซา", alt: ["laksa"], cn: "叻沙", py: "lè shā", en: "laksa", cat: "other" },
+  { thai: "ข้าวหมกไก่", alt: ["briyani"], cn: "印度香饭", py: "yìn dù xiāng fàn", en: "biryani", cat: "other" },
+  { thai: "โรตี", alt: [], cn: "印度煎饼", py: "yìn dù jiān bǐng", en: "roti", cat: "other" },
+  { thai: "แกงกะหรี่ญี่ปุ่น", alt: [], cn: "日式咖喱", py: "rì shì gā lí", en: "Japanese curry", cat: "other" },
+
+  // ── EXT: Dim Sum ──
+  { thai: "เสี่ยวหลงเปา", alt: ["xiaolongbao","XLB","ซาลาเปาน้ำซุป"], cn: "小笼包", py: "xiǎo lóng bāo", en: "soup dumpling (XLB)", cat: "dimsum" },
+  { thai: "เซิงเจียนเปา", alt: ["sheng jian bao","ซาลาเปาทอด"], cn: "生煎包", py: "shēng jiān bāo", en: "pan-fried soup bun", cat: "dimsum" },
+  { thai: "ก๋วยเตี๋ยวหลอดกุ้ง", alt: [], cn: "鲜虾肠粉", py: "xiān xiā cháng fěn", en: "shrimp rice noodle roll", cat: "dimsum" },
+  { thai: "ก๋วยเตี๋ยวหลอดหมูแดง", alt: [], cn: "叉烧肠粉", py: "chā shāo cháng fěn", en: "BBQ pork rice noodle roll", cat: "dimsum" },
+  { thai: "ก๋วยเตี๋ยวหลอดเนื้อ", alt: [], cn: "牛肉肠粉", py: "niú ròu cháng fěn", en: "beef rice noodle roll", cat: "dimsum" },
+  { thai: "ขนมปุยฝ้าย", alt: ["malay sponge"], cn: "马拉糕", py: "mǎ lā gāo", en: "Malay sponge cake", cat: "dimsum" },
+  { thai: "บ๊ะจ่าง", alt: ["zongzi","ข้าวต้มมัด"], cn: "粽子", py: "zòng zi", en: "zongzi", cat: "dimsum" },
+  { thai: "โจ๊กตับ", alt: [], cn: "猪肝粥", py: "zhū gān zhōu", en: "pork liver congee", cat: "dimsum" },
+  { thai: "โจ๊กไก่", alt: [], cn: "鸡肉粥", py: "jī ròu zhōu", en: "chicken congee", cat: "dimsum" },
+  { thai: "โจ๊กกุ้ง", alt: [], cn: "虾粥", py: "xiā zhōu", en: "shrimp congee", cat: "dimsum" },
+  { thai: "โจ๊กปลา", alt: [], cn: "鱼粥", py: "yú zhōu", en: "fish congee", cat: "dimsum" },
+  { thai: "โจ๊กไข่เยี่ยวม้า", alt: [], cn: "皮蛋瘦肉粥", py: "pí dàn shòu ròu zhōu", en: "century egg & pork congee", cat: "dimsum" },
+  { thai: "ขนมไข่ฮ่องกง", alt: ["egg waffle"], cn: "鸡蛋仔", py: "jī dàn zǎi", en: "HK egg waffle", cat: "dimsum" },
+  { thai: "เกี๊ยวซ่ากุยช่าย", alt: [], cn: "韭菜锅贴", py: "jiǔ cài guō tiē", en: "chive pan-fried dumpling", cat: "dimsum" },
+  { thai: "ฮะเก๋าผัก", alt: [], cn: "素饺", py: "sù jiǎo", en: "veg dumpling", cat: "dimsum" },
+  { thai: "เกี๊ยวหมู", alt: [], cn: "猪肉饺", py: "zhū ròu jiǎo", en: "pork dumpling", cat: "dimsum" },
+  { thai: "เกี๊ยวเนื้อ", alt: [], cn: "牛肉饺", py: "niú ròu jiǎo", en: "beef dumpling", cat: "dimsum" },
+  { thai: "ขนมเปี๊ยะถั่ว", alt: [], cn: "莲蓉饼", py: "lián róng bǐng", en: "lotus seed paste pastry", cat: "dimsum" },
+
+  // ── EXT: Snacks ──
+  { thai: "มาลาถัง", alt: ["malatang"], cn: "麻辣烫", py: "má là tàng", en: "malatang (mala soup skewers)", cat: "snack" },
+  { thai: "หม่าลาเซียงกั่ว", alt: ["mala xiangguo","หม่าล่าเซียงกั่ว"], cn: "麻辣香锅", py: "má là xiāng guō", en: "mala xiang guo (dry hot pot)", cat: "snack" },
+  { thai: "โดนัทงา", alt: ["sesame ball"], cn: "麻团", py: "má tuán", en: "sesame ball (jian dui)", cat: "snack" },
+  { thai: "ผลไม้เสียบไม้ฉาบ", alt: ["tanghulu"], cn: "糖葫芦", py: "táng hú lu", en: "tanghulu", cat: "snack" },
+  { thai: "ไข่ต้มชา", alt: ["tea egg"], cn: "茶叶蛋", py: "chá yè dàn", en: "tea egg", cat: "snack" },
+  { thai: "ไส้กรอกย่างไต้หวัน", alt: ["taiwan sausage"], cn: "台湾烤肠", py: "tái wān kǎo cháng", en: "Taiwanese grilled sausage", cat: "snack" },
+  { thai: "หม่านโถวทอด", alt: [], cn: "炸馒头", py: "zhá mán tou", en: "fried mantou", cat: "snack" },
+  { thai: "เกาลัดอบ", alt: [], cn: "糖炒栗子", py: "táng chǎo lì zi", en: "roasted chestnut", cat: "snack" },
+  { thai: "มันเทศย่าง", alt: [], cn: "烤红薯", py: "kǎo hóng shǔ", en: "roasted sweet potato", cat: "snack" },
+  { thai: "ข้าวโพดต้ม", alt: [], cn: "煮玉米", py: "zhǔ yù mǐ", en: "boiled corn", cat: "snack" },
+  { thai: "ข้าวโพดย่าง", alt: [], cn: "烤玉米", py: "kǎo yù mǐ", en: "grilled corn", cat: "snack" },
+  { thai: "ถั่วเหลืองต้ม", alt: ["edamame"], cn: "毛豆", py: "máo dòu", en: "edamame", cat: "snack" },
+  { thai: "ลูกพลับอบแห้ง", alt: [], cn: "柿饼", py: "shì bǐng", en: "dried persimmon", cat: "snack" },
+  { thai: "บะหมี่กึ่งสำเร็จรูป", alt: ["instant noodle","มาม่า"], cn: "方便面", py: "fāng biàn miàn", en: "instant noodle", cat: "snack" },
+  { thai: "ลูกชิ้นเสียบไม้", alt: [], cn: "丸子串", py: "wán zi chuàn", en: "meatball skewer", cat: "snack" },
+  { thai: "หูหมูสไลซ์", alt: [], cn: "猪耳朵", py: "zhū ěr duo", en: "sliced pig ears", cat: "snack" },
+  { thai: "ลิ้นเป็ด", alt: [], cn: "鸭舌", py: "yā shé", en: "duck tongue", cat: "snack" },
+  { thai: "ตีนเป็ด", alt: [], cn: "鸭掌", py: "yā zhǎng", en: "duck feet", cat: "snack" },
+  { thai: "คอเป็ดเสฉวน", alt: [], cn: "麻辣鸭脖", py: "má là yā bó", en: "spicy duck neck", cat: "snack" },
+  { thai: "สแน็คสาหร่าย", alt: [], cn: "海苔", py: "hǎi tái", en: "seaweed snack", cat: "snack" },
+  { thai: "ขนมข้าวพอง", alt: [], cn: "米饼", py: "mǐ bǐng", en: "rice cracker", cat: "snack" },
+  { thai: "แครกเกอร์", alt: ["cracker"], cn: "饼干", py: "bǐng gān", en: "biscuit / cracker", cat: "snack" },
+  { thai: "ลูกอม", alt: [], cn: "糖果", py: "táng guǒ", en: "candy", cat: "snack" },
+
+  // ── EXT: Noodles ──
+  { thai: "บะหมี่หลานโจว", alt: ["lanzhou ramen","หลันโจว"], cn: "兰州拉面", py: "lán zhōu lā miàn", en: "Lanzhou beef noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวข้ามสะพาน", alt: ["crossing bridge","ก๋วยเตี๋ยวยูนนาน"], cn: "过桥米线", py: "guò qiáo mǐ xiàn", en: "Yunnan crossing-the-bridge noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวกุ้ยหลิน", alt: [], cn: "桂林米粉", py: "guì lín mǐ fěn", en: "Guilin rice noodle", cat: "noodle" },
+  { thai: "บะหมี่เปียงเปียง", alt: ["biangbiang"], cn: "裤带面", py: "kù dài miàn", en: "biangbiang / belt noodle", cat: "noodle" },
+  { thai: "บะหมี่ราดน้ำมัน", alt: [], cn: "油泼面", py: "yóu pō miàn", en: "oil-splashed noodle", cat: "noodle" },
+  { thai: "บะหมี่ผัดฮ่องกง", alt: ["beef chow fun"], cn: "干炒牛河", py: "gān chǎo niú hé", en: "HK beef chow fun", cat: "noodle" },
+  { thai: "บะหมี่ผัดเซี่ยงไฮ้", alt: [], cn: "上海炒面", py: "shàng hǎi chǎo miàn", en: "Shanghai fried noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเย็น", alt: ["cold noodle"], cn: "凉面", py: "liáng miàn", en: "cold noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเย็นเสฉวน", alt: [], cn: "川凉面", py: "chuān liáng miàn", en: "Sichuan cold noodle", cat: "noodle" },
+  { thai: "บะหมี่หัวปลา", alt: [], cn: "鱼头米粉", py: "yú tóu mǐ fěn", en: "fish head rice noodle", cat: "noodle" },
+  { thai: "บะหมี่หัวหมึก", alt: [], cn: "墨鱼面", py: "mò yú miàn", en: "squid ink noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวต้มเลือดหมู", alt: [], cn: "猪血粉条", py: "zhū xuè fěn tiáo", en: "pork blood noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวกระเพราหมู", alt: [], cn: "肉末粉", py: "ròu mò fěn", en: "minced pork noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวลูกชิ้นปลา", alt: [], cn: "鱼丸粉", py: "yú wán fěn", en: "fish ball noodle", cat: "noodle" },
+  { thai: "บะหมี่ซุปเปรี้ยวเผ็ด", alt: [], cn: "酸辣面", py: "suān là miàn", en: "hot & sour noodle", cat: "noodle" },
+  { thai: "บะหมี่ฉงชิ่ง", alt: ["chongqing"], cn: "重庆小面", py: "chóng qìng xiǎo miàn", en: "Chongqing noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวสามรส", alt: [], cn: "三鲜粉", py: "sān xiān fěn", en: "three-fresh noodle", cat: "noodle" },
+  { thai: "หมี่เซี่ยงไฮ้", alt: [], cn: "葱油拌面", py: "cōng yóu bàn miàn", en: "Shanghai scallion oil noodle", cat: "noodle" },
+  { thai: "ก๋วยเตี๋ยวเรือไทย", alt: [], cn: "船面", py: "chuán miàn", en: "Thai boat noodle", cat: "noodle" },
+  { thai: "เย็นตาโฟ", alt: [], cn: "红腐乳粉", py: "hóng fǔ rǔ fěn", en: "yen ta fo", cat: "noodle" },
+  { thai: "ราดหน้า", alt: [], cn: "泰式滑面", py: "tài shì huá miàn", en: "Thai rad na (gravy noodle)", cat: "noodle" },
+  { thai: "บะหมี่หมูสับ", alt: [], cn: "肉末面", py: "ròu mò miàn", en: "minced pork noodle", cat: "noodle" },
+  { thai: "บะหมี่ลูกชิ้นเนื้อ", alt: [], cn: "牛肉丸面", py: "niú ròu wán miàn", en: "beef ball noodle", cat: "noodle" },
+  { thai: "ผัดวุ้นเส้นจีน", alt: [], cn: "炒粉丝", py: "chǎo fěn sī", en: "stir-fried glass noodle", cat: "noodle" },
+  { thai: "บะหมี่ไก่ฉีก", alt: [], cn: "鸡丝面", py: "jī sī miàn", en: "shredded chicken noodle", cat: "noodle" },
+
+  // ── EXT: Rice ──
+  { thai: "ข้าวอบหม้อดิน", alt: ["claypot rice"], cn: "煲仔饭", py: "bāo zǎi fàn", en: "claypot rice", cat: "rice" },
+  { thai: "ข้าวอบหม้อดินกุนเชียง", alt: [], cn: "腊味煲仔饭", py: "là wèi bāo zǎi fàn", en: "preserved meat claypot rice", cat: "rice" },
+  { thai: "ข้าวอบหม้อดินไก่", alt: [], cn: "鸡煲仔饭", py: "jī bāo zǎi fàn", en: "chicken claypot rice", cat: "rice" },
+  { thai: "ข้าวอบหม้อดินเนื้อ", alt: [], cn: "牛肉煲仔饭", py: "niú ròu bāo zǎi fàn", en: "beef claypot rice", cat: "rice" },
+  { thai: "ข้าวผัดไข่", alt: ["egg fried rice"], cn: "蛋炒饭", py: "dàn chǎo fàn", en: "egg fried rice", cat: "rice" },
+  { thai: "ข้าวผัดสับปะรด", alt: [], cn: "菠萝炒饭", py: "bō luó chǎo fàn", en: "pineapple fried rice", cat: "rice" },
+  { thai: "ข้าวผัดอเมริกัน", alt: [], cn: "美式炒饭", py: "měi shì chǎo fàn", en: "American fried rice", cat: "rice" },
+  { thai: "ข้าวคลุกกะปิ", alt: [], cn: "虾酱炒饭", py: "xiā jiàng chǎo fàn", en: "shrimp paste rice", cat: "rice" },
+  { thai: "ข้าวผัดกระเพรา", alt: [], cn: "罗勒炒饭", py: "luó lè chǎo fàn", en: "Thai basil fried rice", cat: "rice" },
+  { thai: "ข้าวกล่อง", alt: ["bento"], cn: "盒饭", py: "hé fàn", en: "bento / boxed rice", cat: "rice" },
+  { thai: "ข้าวขาว", alt: [], cn: "白饭", py: "bái fàn", en: "plain white rice", cat: "rice" },
+  { thai: "ข้าวกล้อง", alt: [], cn: "糙米饭", py: "cāo mǐ fàn", en: "brown rice", cat: "rice" },
+  { thai: "ข้าวห่อใบบัว", alt: [], cn: "荷叶包饭", py: "hé yè bāo fàn", en: "lotus leaf rice", cat: "rice" },
+  { thai: "ข้าวต้มหมู", alt: [], cn: "猪肉粥", py: "zhū ròu zhōu", en: "pork rice porridge", cat: "rice" },
+  { thai: "ข้าวต้มไก่", alt: [], cn: "鸡粥", py: "jī zhōu", en: "chicken porridge", cat: "rice" },
+  { thai: "ข้าวต้มกุ้ง", alt: [], cn: "虾粥", py: "xiā zhōu", en: "shrimp porridge", cat: "rice" },
+  { thai: "ข้าวต้มปลา", alt: [], cn: "鱼粥", py: "yú zhōu", en: "fish porridge", cat: "rice" },
+  { thai: "ข้าวต้มฟักทอง", alt: [], cn: "南瓜粥", py: "nán guā zhōu", en: "pumpkin porridge", cat: "rice" },
+  { thai: "ข้าวต้มถั่วแดง", alt: [], cn: "红豆粥", py: "hóng dòu zhōu", en: "red bean porridge", cat: "rice" },
+  { thai: "ข้าวห่อไข่", alt: ["omurice"], cn: "蛋包饭", py: "dàn bāo fàn", en: "omurice", cat: "rice" },
+  { thai: "ข้าวหน้าหมูทอด", alt: ["katsudon"], cn: "猪排饭", py: "zhū pái fàn", en: "tonkatsu rice / katsudon", cat: "rice" },
+  { thai: "ข้าวหน้าเนื้อย่าง", alt: ["gyudon"], cn: "牛丼", py: "niú dòng", en: "gyudon", cat: "rice" },
+  { thai: "ข้าวหน้าเป็ดพะโล้", alt: [], cn: "卤鸭饭", py: "lǔ yā fàn", en: "braised duck rice", cat: "rice" },
+  { thai: "ข้าวเหนียวห่อไก่", alt: [], cn: "鸡肉粽", py: "jī ròu zòng", en: "chicken sticky rice wrap", cat: "rice" },
+
+  // ── เสฉวน / Sichuan ──
+  { thai: "ปลาเสฉวน", alt: ["shuizhu fish","ปลาน้ำพริก"], cn: "水煮鱼", py: "shuǐ zhǔ yú", en: "Sichuan boiled fish in chili oil", cat: "sichuan" },
+  { thai: "เนื้อต้มน้ำพริก", alt: ["shuizhu beef"], cn: "水煮牛肉", py: "shuǐ zhǔ niú ròu", en: "boiled beef in chili oil", cat: "sichuan" },
+  { thai: "ไก่ผัดพริกแห้ง", alt: ["laziji","chongqing chicken"], cn: "辣子鸡", py: "là zǐ jī", en: "Chongqing chili chicken", cat: "sichuan" },
+  { thai: "หมูผัดสองครั้ง", alt: ["twice cooked pork"], cn: "回锅肉", py: "huí guō ròu", en: "twice-cooked pork", cat: "sichuan" },
+  { thai: "หมูซอสปลา", alt: ["yu xiang pork","ยู่เซียงโร่วซือ"], cn: "鱼香肉丝", py: "yú xiāng ròu sī", en: "yu xiang shredded pork", cat: "sichuan" },
+  { thai: "มะเขือยาวซอสปลา", alt: ["yu xiang eggplant"], cn: "鱼香茄子", py: "yú xiāng qié zi", en: "yu xiang eggplant", cat: "sichuan" },
+  { thai: "เป็ดรมควันชา", alt: ["tea-smoked duck"], cn: "樟茶鸭", py: "zhāng chá yā", en: "tea-smoked duck", cat: "sichuan" },
+  { thai: "ฝูฉีเฟ่ยเพี่ยน", alt: ["fuqi feipian","couple's lung"], cn: "夫妻肺片", py: "fū qī fèi piàn", en: "couple's lung slices", cat: "sichuan" },
+  { thai: "ไก่น้ำลายไหล", alt: ["mouthwatering chicken"], cn: "口水鸡", py: "kǒu shuǐ jī", en: "mouth-watering chicken", cat: "sichuan" },
+  { thai: "เต้าหู้มาโป", alt: ["mapo tofu"], cn: "麻婆豆腐", py: "má pó dòu fu", en: "mapo tofu", cat: "sichuan" },
+  { thai: "เนื้อแกะมาลา", alt: [], cn: "麻辣羊肉", py: "má là yáng ròu", en: "mala lamb", cat: "sichuan" },
+  { thai: "ปูเสฉวน", alt: [], cn: "麻辣蟹", py: "má là xiè", en: "mala crab", cat: "sichuan" },
+  { thai: "กุ้งเสฉวน", alt: [], cn: "麻辣虾", py: "má là xiā", en: "mala shrimp", cat: "sichuan" },
+  { thai: "กบมาลา", alt: [], cn: "麻辣牛蛙", py: "má là niú wā", en: "mala bullfrog", cat: "sichuan" },
+  { thai: "เต้าหู้เจี่ยฉาง", alt: ["jiachang doufu"], cn: "家常豆腐", py: "jiā cháng dòu fu", en: "home-style tofu", cat: "sichuan" },
+  { thai: "ไส้กรอกเสฉวน", alt: [], cn: "四川香肠", py: "sì chuān xiāng cháng", en: "Sichuan sausage", cat: "sichuan" },
+  { thai: "หม้อไฟเสฉวน", alt: ["sichuan hotpot"], cn: "四川火锅", py: "sì chuān huǒ guō", en: "Sichuan hotpot", cat: "sichuan" },
+  { thai: "หม้อไฟชุมแสง", alt: ["yin-yang hotpot"], cn: "鸳鸯火锅", py: "yuān yāng huǒ guō", en: "yin-yang hotpot", cat: "sichuan" },
+  { thai: "บะหมี่ตันตัน", alt: ["dan dan"], cn: "担担面", py: "dàn dàn miàn", en: "dan dan noodle", cat: "sichuan" },
+  { thai: "ผัดถั่วลันเตา", alt: [], cn: "干煸豆角", py: "gān biān dòu jiǎo", en: "dry-fried green beans", cat: "sichuan" },
+  { thai: "ไก่กังเปา", alt: ["kung pao chicken"], cn: "宫保鸡丁", py: "gōng bǎo jī dīng", en: "kung pao chicken", cat: "sichuan" },
+  { thai: "วุ้นเสฉวนเย็น", alt: [], cn: "川北凉粉", py: "chuān běi liáng fěn", en: "Sichuan cold mung bean jelly", cat: "sichuan" },
+  { thai: "ปอเปี๊ยะเสฉวน", alt: [], cn: "钟水饺", py: "zhōng shuǐ jiǎo", en: "Zhong dumpling", cat: "sichuan" },
+
+  // ── กวางตุ้ง / Cantonese ──
+  { thai: "ไก่ตุ๋นเกลือ", alt: ["salt-baked chicken"], cn: "盐焗鸡", py: "yán jú jī", en: "salt-baked chicken", cat: "canton" },
+  { thai: "ไก่ขาวกวางตุ้ง", alt: ["white cut chicken"], cn: "白切鸡", py: "bái qiē jī", en: "white-cut chicken", cat: "canton" },
+  { thai: "ไก่ซอสซีอิ๊ว", alt: ["soy chicken"], cn: "豉油鸡", py: "chǐ yóu jī", en: "soy sauce chicken", cat: "canton" },
+  { thai: "ห่านย่าง", alt: ["roast goose"], cn: "烧鹅", py: "shāo é", en: "roast goose", cat: "canton" },
+  { thai: "หมูแดงกรอบ", alt: ["crispy char siu"], cn: "脆皮叉烧", py: "cuì pí chā shāo", en: "crispy char siu", cat: "canton" },
+  { thai: "หมูสามชั้นย่าง", alt: ["siu yuk"], cn: "烧肉", py: "shāo ròu", en: "siu yuk (roast pork belly)", cat: "canton" },
+  { thai: "เนื้อย่างเค็มกวางตุ้ง", alt: ["lou mei"], cn: "卤水拼盘", py: "lǔ shuǐ pīn pán", en: "lou mei cold cuts platter", cat: "canton" },
+  { thai: "ไก่ห่อใบไม้", alt: ["beggar's chicken"], cn: "叫化鸡", py: "jiào huā jī", en: "beggar's chicken", cat: "canton" },
+  { thai: "เนื้อตุ๋นบ๊วยเค็ม", alt: ["mei cai pork"], cn: "梅菜扣肉", py: "méi cài kòu ròu", en: "preserved mustard greens pork", cat: "canton" },
+  { thai: "ปูพริกเกลือ", alt: [], cn: "椒盐蟹", py: "jiāo yán xiè", en: "salt & pepper crab", cat: "canton" },
+  { thai: "ปลาทอดเปรี้ยวหวาน", alt: [], cn: "糖醋鱼", py: "táng cù yú", en: "sweet & sour fish", cat: "canton" },
+  { thai: "หมูเปรี้ยวหวานกวางตุ้ง", alt: ["gulao rou","กูเหล่ารู่"], cn: "咕咾肉", py: "gū lǎo ròu", en: "sweet & sour pork (Cantonese)", cat: "canton" },
+  { thai: "ผัดสามอย่างจีน", alt: [], cn: "西芹百合", py: "xī qín bǎi hé", en: "celery & lily bulb stir-fry", cat: "canton" },
+  { thai: "เป็ดย่างกวางตุ้ง", alt: [], cn: "广式烧鸭", py: "guǎng shì shāo yā", en: "Cantonese roast duck", cat: "canton" },
+  { thai: "ตับเป็ดผัด", alt: [], cn: "炒鸭肝", py: "chǎo yā gān", en: "stir-fried duck liver", cat: "canton" },
+  { thai: "ผัดผักกวางตุ้ง", alt: [], cn: "干炒芥兰", py: "gān chǎo jiè lán", en: "dry-fried Chinese broccoli", cat: "canton" },
+  { thai: "เต้าหู้ทรงเครื่อง", alt: [], cn: "八宝豆腐", py: "bā bǎo dòu fu", en: "eight-treasure tofu", cat: "canton" },
+  { thai: "หอยเป๋าฮื้อตุ๋น", alt: [], cn: "鲍鱼炖", py: "bào yú dùn", en: "braised abalone", cat: "canton" },
+  { thai: "ก๋วยเตี๋ยวหมูแดงน้ำ", alt: [], cn: "叉烧汤面", py: "chā shāo tāng miàn", en: "char siu noodle soup", cat: "canton" },
+  { thai: "หม่ายเหวินกุ้ง", alt: ["mayonnaise prawn"], cn: "美乃滋虾", py: "měi nǎi zī xiā", en: "mayo prawns", cat: "canton" },
+  { thai: "ปลาตุ๋นซีอิ๊ว", alt: [], cn: "豉汁蒸鱼", py: "chǐ zhī zhēng yú", en: "steamed fish with black bean sauce", cat: "canton" },
+  { thai: "เนื้อแกะตุ๋นหม้อดิน", alt: [], cn: "羊肉煲", py: "yáng ròu bāo", en: "lamb claypot", cat: "canton" },
+
+  // ── เหนือ / Northern Chinese ──
+  { thai: "เป็ดปักกิ่ง", alt: ["peking duck"], cn: "北京烤鸭", py: "běi jīng kǎo yā", en: "Peking duck", cat: "north" },
+  { thai: "หมูผัดถั่วเค็มปักกิ่ง", alt: ["jingjiang rousi"], cn: "京酱肉丝", py: "jīng jiàng ròu sī", en: "Beijing-style pork in bean sauce", cat: "north" },
+  { thai: "เนื้อแกะเสียบไม้", alt: ["lamb skewers","ชวนซินเจียง"], cn: "羊肉串", py: "yáng ròu chuàn", en: "lamb skewers (chuanr)", cat: "north" },
+  { thai: "เนื้อแกะย่าง", alt: [], cn: "烤羊肉", py: "kǎo yáng ròu", en: "grilled lamb", cat: "north" },
+  { thai: "เนื้อแกะตุ๋นมองโกล", alt: ["mongolian hotpot"], cn: "涮羊肉", py: "shuàn yáng ròu", en: "Mongolian instant-boiled lamb", cat: "north" },
+  { thai: "ไก่ซินเจียง", alt: ["big plate chicken","ต้าผันจี"], cn: "大盘鸡", py: "dà pán jī", en: "Xinjiang big plate chicken", cat: "north" },
+  { thai: "แป้งซินเจียง", alt: ["naan"], cn: "馕", py: "náng", en: "Xinjiang naan", cat: "north" },
+  { thai: "ข้าวอบเนื้อแกะ", alt: ["pilaf"], cn: "羊肉抓饭", py: "yáng ròu zhuā fàn", en: "Xinjiang lamb pilaf", cat: "north" },
+  { thai: "หมูทอดกรอบหวาน", alt: ["guobaorou"], cn: "锅包肉", py: "guō bāo ròu", en: "guo bao rou (sweet & sour pork)", cat: "north" },
+  { thai: "ผัดสามอย่างตงเป่ย", alt: ["di san xian"], cn: "地三鲜", py: "dì sān xiān", en: "di san xian", cat: "north" },
+  { thai: "เนื้อตุ๋นมันฝรั่ง", alt: [], cn: "土豆烧牛肉", py: "tǔ dòu shāo niú ròu", en: "beef & potato stew", cat: "north" },
+  { thai: "เกี๊ยวต้มน้ำ", alt: [], cn: "水饺", py: "shuǐ jiǎo", en: "boiled dumplings", cat: "north" },
+  { thai: "เจียจังเมี่ยน", alt: ["zhajiangmian"], cn: "炸酱面", py: "zhá jiàng miàn", en: "zhajiangmian", cat: "north" },
+  { thai: "เกี๊ยวอบ", alt: [], cn: "煎饺", py: "jiān jiǎo", en: "pan-fried dumpling", cat: "north" },
+  { thai: "แพนเค้กต้นหอม", alt: ["scallion pancake"], cn: "葱油饼", py: "cōng yóu bǐng", en: "scallion pancake", cat: "north" },
+  { thai: "หม่านโถวเหนือ", alt: [], cn: "花卷", py: "huā juǎn", en: "flower roll", cat: "north" },
+  { thai: "ขนมจีนซานซี", alt: [], cn: "刀削面", py: "dāo xiāo miàn", en: "knife-cut noodle", cat: "north" },
+  { thai: "เกาเลี่ยง", alt: [], cn: "高粱酒", py: "gāo liáng jiǔ", en: "sorghum liquor (gaoliang)", cat: "north" },
+
+  // ── เซี่ยงไฮ้ / Shanghai ──
+  { thai: "หมูตุ๋นแดง", alt: ["red braised pork","หงเซาโร่ว"], cn: "红烧肉", py: "hóng shāo ròu", en: "red-braised pork belly", cat: "shanghai" },
+  { thai: "ตงโพหมู", alt: ["dongpo pork"], cn: "东坡肉", py: "dōng pō ròu", en: "Dongpo pork", cat: "shanghai" },
+  { thai: "ไก่ตุ๋นไวน์", alt: ["drunken chicken"], cn: "醉鸡", py: "zuì jī", en: "drunken chicken", cat: "shanghai" },
+  { thai: "กุ้งเมาเหล้า", alt: ["drunken shrimp"], cn: "醉虾", py: "zuì xiā", en: "drunken shrimp", cat: "shanghai" },
+  { thai: "ปลามังกร", alt: ["squirrel fish"], cn: "松鼠桂鱼", py: "sōng shǔ guì yú", en: "squirrel-shaped mandarin fish", cat: "shanghai" },
+  { thai: "ลูกชิ้นยักษ์เซี่ยงไฮ้", alt: ["lion's head"], cn: "狮子头", py: "shī zi tóu", en: "lion's head meatball", cat: "shanghai" },
+  { thai: "เป็ดน้ำเค็ม", alt: [], cn: "盐水鸭", py: "yán shuǐ yā", en: "Nanjing salt water duck", cat: "shanghai" },
+  { thai: "ปูขนหญ้าตุ๋น", alt: ["hairy crab"], cn: "大闸蟹", py: "dà zhá xiè", en: "Shanghai hairy crab", cat: "shanghai" },
+  { thai: "เซี่ยงไฮ้เกี๊ยวซุป", alt: ["xiaolongbao"], cn: "上海小笼包", py: "shàng hǎi xiǎo lóng bāo", en: "Shanghai soup dumpling", cat: "shanghai" },
+  { thai: "เนื้อตุ๋นใส", alt: [], cn: "清炖牛肉", py: "qīng dùn niú ròu", en: "clear-stewed beef", cat: "shanghai" },
+  { thai: "ขาหมูเซี่ยงไฮ้", alt: ["red braised pork knuckle"], cn: "红烧蹄膀", py: "hóng shāo tí páng", en: "red-braised pork knuckle", cat: "shanghai" },
+  { thai: "ข้าวเซี่ยงไฮ้", alt: [], cn: "上海菜饭", py: "shàng hǎi cài fàn", en: "Shanghai vegetable rice", cat: "shanghai" },
+
+  // ── EXT: Meat ──
+  { thai: "ไก่แดงตุ๋น", alt: [], cn: "红烧鸡", py: "hóng shāo jī", en: "red-braised chicken", cat: "meat" },
+  { thai: "เนื้อแดงตุ๋น", alt: [], cn: "红烧牛肉", py: "hóng shāo niú ròu", en: "red-braised beef", cat: "meat" },
+  { thai: "ไก่ผัดเห็ดหอม", alt: [], cn: "香菇鸡", py: "xiāng gū jī", en: "shiitake chicken", cat: "meat" },
+  { thai: "หมูผัดกระเทียม", alt: [], cn: "蒜泥猪肉", py: "suàn ní zhū ròu", en: "garlic pork", cat: "meat" },
+  { thai: "หมูผัดต้นหอม", alt: [], cn: "葱爆猪肉", py: "cōng bào zhū ròu", en: "scallion stir-fried pork", cat: "meat" },
+  { thai: "เนื้อผัดต้นหอม", alt: [], cn: "葱爆牛肉", py: "cōng bào niú ròu", en: "scallion beef", cat: "meat" },
+  { thai: "เนื้อผัดพริก", alt: [], cn: "辣椒牛肉", py: "là jiāo niú ròu", en: "chili beef", cat: "meat" },
+  { thai: "เนื้อผัดพริกไทยดำ", alt: [], cn: "黑椒牛肉", py: "hēi jiāo niú ròu", en: "black pepper beef", cat: "meat" },
+  { thai: "เนื้อผัดเห็ด", alt: [], cn: "蘑菇牛肉", py: "mó gu niú ròu", en: "mushroom beef", cat: "meat" },
+  { thai: "ไก่ผัดพริกไทยดำ", alt: [], cn: "黑椒鸡", py: "hēi jiāo jī", en: "black pepper chicken", cat: "meat" },
+  { thai: "ไก่ผัดมะม่วงหิมพานต์", alt: [], cn: "腰果鸡丁", py: "yāo guǒ jī dīng", en: "cashew chicken", cat: "meat" },
+  { thai: "ซี่โครงตุ๋น", alt: [], cn: "炖排骨", py: "dùn pái gǔ", en: "braised pork ribs", cat: "meat" },
+  { thai: "ซี่โครงทอด", alt: [], cn: "炸排骨", py: "zhá pái gǔ", en: "fried pork ribs", cat: "meat" },
+  { thai: "ซี่โครงเปรี้ยวหวาน", alt: [], cn: "糖醋排骨", py: "táng cù pái gǔ", en: "sweet & sour pork ribs", cat: "meat" },
+  { thai: "ไก่ทอดกระเทียม", alt: [], cn: "蒜香炸鸡", py: "suàn xiāng zhá jī", en: "garlic fried chicken", cat: "meat" },
+  { thai: "น่องไก่ทอด", alt: [], cn: "炸鸡腿", py: "zhá jī tuǐ", en: "fried chicken drumstick", cat: "meat" },
+  { thai: "ปีกไก่ทอด", alt: [], cn: "炸鸡翅", py: "zhá jī chì", en: "fried chicken wings", cat: "meat" },
+  { thai: "ปีกไก่ย่าง", alt: [], cn: "烤鸡翅", py: "kǎo jī chì", en: "grilled chicken wings", cat: "meat" },
+  { thai: "ปีกไก่โคล่า", alt: [], cn: "可乐鸡翅", py: "kě lè jī chì", en: "Coca-cola chicken wings", cat: "meat" },
+  { thai: "ไก่ตุ๋นยาจีน", alt: [], cn: "药膳鸡", py: "yào shàn jī", en: "herbal stewed chicken", cat: "meat" },
+  { thai: "ไก่ผัดขิงต้นหอม", alt: [], cn: "姜葱鸡", py: "jiāng cōng jī", en: "ginger scallion chicken", cat: "meat" },
+  { thai: "เป็ดอบ", alt: [], cn: "焖鸭", py: "mèn yā", en: "braised duck", cat: "meat" },
+  { thai: "เป็ดย่างมะนาว", alt: [], cn: "柠檬鸭", py: "níng méng yā", en: "lemon duck", cat: "meat" },
+  { thai: "ตับหมูผัด", alt: [], cn: "炒猪肝", py: "chǎo zhū gān", en: "stir-fried pork liver", cat: "meat" },
+  { thai: "ไส้หมูผัด", alt: [], cn: "炒猪大肠", py: "chǎo zhū dà cháng", en: "stir-fried pork intestine", cat: "meat" },
+  { thai: "ผ้าขี้ริ้วผัด", alt: [], cn: "炒牛肚", py: "chǎo niú dǔ", en: "stir-fried tripe", cat: "meat" },
+
+  // ── EXT: Seafood ──
+  { thai: "กุ้งมังกรนึ่ง", alt: [], cn: "蒸龙虾", py: "zhēng lóng xiā", en: "steamed lobster", cat: "seafood" },
+  { thai: "กุ้งมังกรชีส", alt: [], cn: "芝士龙虾", py: "zhī shì lóng xiā", en: "cheese lobster", cat: "seafood" },
+  { thai: "ปูอลาสกาย่าง", alt: [], cn: "烤帝王蟹", py: "kǎo dì wáng xiè", en: "grilled king crab", cat: "seafood" },
+  { thai: "กุ้งทอดกระเทียม", alt: [], cn: "蒜香虾", py: "suàn xiāng xiā", en: "garlic shrimp", cat: "seafood" },
+  { thai: "กุ้งทอดเนย", alt: [], cn: "牛油虾", py: "niú yóu xiā", en: "butter shrimp", cat: "seafood" },
+  { thai: "กุ้งซอสมะขาม", alt: [], cn: "罗望子虾", py: "luó wàng zǐ xiā", en: "tamarind shrimp", cat: "seafood" },
+  { thai: "กุ้งลวก", alt: [], cn: "白灼虾", py: "bái zhuó xiā", en: "blanched shrimp", cat: "seafood" },
+  { thai: "หอยลายผัดพริกเผา", alt: [], cn: "辣炒蛤蜊", py: "là chǎo gé lí", en: "spicy clams", cat: "seafood" },
+  { thai: "หอยลายผัดใบโหระพา", alt: [], cn: "罗勒蛤蜊", py: "luó lè gé lí", en: "basil clams", cat: "seafood" },
+  { thai: "หอยแครงลวก", alt: [], cn: "白灼血蚶", py: "bái zhuó xuè hān", en: "blanched cockles", cat: "seafood" },
+  { thai: "หอยนางรมย่าง", alt: [], cn: "烤生蚝", py: "kǎo shēng háo", en: "grilled oyster", cat: "seafood" },
+  { thai: "หอยนางรมสด", alt: [], cn: "生蚝", py: "shēng háo", en: "raw oyster", cat: "seafood" },
+  { thai: "หอยเชลล์ย่าง", alt: [], cn: "烤扇贝", py: "kǎo shàn bèi", en: "grilled scallop", cat: "seafood" },
+  { thai: "หอยเชลล์ผัดน้ำมันหอย", alt: [], cn: "蚝油扇贝", py: "háo yóu shàn bèi", en: "oyster sauce scallops", cat: "seafood" },
+  { thai: "ปลาหมึกผัดพริก", alt: [], cn: "辣椒鱿鱼", py: "là jiāo yóu yú", en: "chili squid", cat: "seafood" },
+  { thai: "ปลาหมึกพริกไทยดำ", alt: [], cn: "黑椒鱿鱼", py: "hēi jiāo yóu yú", en: "black pepper squid", cat: "seafood" },
+  { thai: "ปลาทอดกระเทียม", alt: [], cn: "蒜香炸鱼", py: "suàn xiāng zhá yú", en: "garlic fried fish", cat: "seafood" },
+  { thai: "ปลานึ่งมะนาว", alt: [], cn: "柠檬蒸鱼", py: "níng méng zhēng yú", en: "lime-steamed fish", cat: "seafood" },
+  { thai: "ปลาทูทอด", alt: [], cn: "炸鲭鱼", py: "zhá qīng yú", en: "fried mackerel", cat: "seafood" },
+  { thai: "ปลาแซลมอนย่าง", alt: [], cn: "烤三文鱼", py: "kǎo sān wén yú", en: "grilled salmon", cat: "seafood" },
+  { thai: "ปลาทูน่าย่าง", alt: [], cn: "烤金枪鱼", py: "kǎo jīn qiāng yú", en: "grilled tuna", cat: "seafood" },
+  { thai: "ปูนิ่มทอด", alt: [], cn: "炸软壳蟹", py: "zhá ruǎn ké xiè", en: "fried soft-shell crab", cat: "seafood" },
+  { thai: "ปูดอง", alt: [], cn: "醉蟹", py: "zuì xiè", en: "drunken crab", cat: "seafood" },
+  { thai: "ลูกชิ้นปลาทอด", alt: [], cn: "炸鱼丸", py: "zhá yú wán", en: "fried fish ball", cat: "seafood" },
+  { thai: "ฟิชแอนด์ชิปส์", alt: [], cn: "炸鱼薯条", py: "zhá yú shǔ tiáo", en: "fish & chips", cat: "seafood" },
+
+  // ── EXT: Veg ──
+  { thai: "ผักโขม", alt: ["spinach","ปวยเล้ง"], cn: "菠菜", py: "bō cài", en: "spinach", cat: "veg" },
+  { thai: "ผัดผักโขมกระเทียม", alt: [], cn: "蒜蓉菠菜", py: "suàn róng bō cài", en: "garlic spinach", cat: "veg" },
+  { thai: "กะหล่ำปลี", alt: ["cabbage"], cn: "卷心菜", py: "juǎn xīn cài", en: "cabbage", cat: "veg" },
+  { thai: "ผัดกะหล่ำปลี", alt: [], cn: "炒卷心菜", py: "chǎo juǎn xīn cài", en: "stir-fried cabbage", cat: "veg" },
+  { thai: "ผักกาดหอม", alt: ["lettuce"], cn: "生菜", py: "shēng cài", en: "lettuce", cat: "veg" },
+  { thai: "ผักกาดขาว", alt: ["napa cabbage"], cn: "白菜", py: "bái cài", en: "napa cabbage", cat: "veg" },
+  { thai: "บ๊อกฉ่อย", alt: ["bok choy"], cn: "小白菜", py: "xiǎo bái cài", en: "bok choy", cat: "veg" },
+  { thai: "คะน้า", alt: [], cn: "芥兰", py: "jiè lán", en: "Chinese broccoli (gai lan)", cat: "veg" },
+  { thai: "บร็อคโคลี่", alt: [], cn: "西兰花", py: "xī lán huā", en: "broccoli", cat: "veg" },
+  { thai: "ดอกกะหล่ำ", alt: [], cn: "花椰菜", py: "huā yē cài", en: "cauliflower", cat: "veg" },
+  { thai: "หน่อไม้", alt: ["bamboo shoot"], cn: "竹笋", py: "zhú sǔn", en: "bamboo shoot", cat: "veg" },
+  { thai: "ข้าวโพดอ่อน", alt: ["baby corn"], cn: "玉米笋", py: "yù mǐ sǔn", en: "baby corn", cat: "veg" },
+  { thai: "เห็ดหอม", alt: ["shiitake"], cn: "香菇", py: "xiāng gū", en: "shiitake mushroom", cat: "veg" },
+  { thai: "เห็ดเข็มทอง", alt: ["enoki"], cn: "金针菇", py: "jīn zhēn gū", en: "enoki mushroom", cat: "veg" },
+  { thai: "เห็ดออรินจิ", alt: ["king oyster"], cn: "杏鲍菇", py: "xìng bào gū", en: "king oyster mushroom", cat: "veg" },
+  { thai: "เห็ดออริฟิตา", alt: ["oyster mushroom"], cn: "平菇", py: "píng gū", en: "oyster mushroom", cat: "veg" },
+  { thai: "เห็ดฟาง", alt: [], cn: "草菇", py: "cǎo gū", en: "straw mushroom", cat: "veg" },
+  { thai: "เห็ดหูหนู", alt: ["wood ear"], cn: "木耳", py: "mù ěr", en: "wood ear mushroom", cat: "veg" },
+  { thai: "เห็ดหูหนูขาว", alt: [], cn: "银耳", py: "yín ěr", en: "white wood ear / snow fungus", cat: "veg" },
+  { thai: "ผัดเห็ดรวม", alt: [], cn: "炒杂菌", py: "chǎo zá jùn", en: "mixed mushroom stir-fry", cat: "veg" },
+  { thai: "ฟักทอง", alt: ["pumpkin"], cn: "南瓜", py: "nán guā", en: "pumpkin", cat: "veg" },
+  { thai: "ฟัก", alt: ["winter melon"], cn: "冬瓜", py: "dōng guā", en: "winter melon", cat: "veg" },
+  { thai: "บวบ", alt: ["luffa"], cn: "丝瓜", py: "sī guā", en: "luffa / sponge gourd", cat: "veg" },
+  { thai: "มะระ", alt: ["bitter melon"], cn: "苦瓜", py: "kǔ guā", en: "bitter melon", cat: "veg" },
+  { thai: "แตงกวา", alt: ["cucumber"], cn: "黄瓜", py: "huáng guā", en: "cucumber", cat: "veg" },
+  { thai: "มะเขือเทศ", alt: ["tomato"], cn: "番茄", py: "fān qié", en: "tomato", cat: "veg" },
+  { thai: "มะเขือเทศผัดไข่", alt: [], cn: "番茄炒蛋", py: "fān qié chǎo dàn", en: "tomato & egg stir-fry", cat: "veg" },
+  { thai: "มะเขือยาว", alt: ["eggplant"], cn: "茄子", py: "qié zi", en: "eggplant", cat: "veg" },
+  { thai: "แครอท", alt: [], cn: "胡萝卜", py: "hú luó bo", en: "carrot", cat: "veg" },
+  { thai: "หัวไชเท้า", alt: [], cn: "白萝卜", py: "bái luó bo", en: "daikon radish", cat: "veg" },
+  { thai: "มันฝรั่ง", alt: [], cn: "土豆", py: "tǔ dòu", en: "potato", cat: "veg" },
+  { thai: "มันฝรั่งทอด", alt: ["fries"], cn: "炸薯条", py: "zhá shǔ tiáo", en: "french fries", cat: "veg" },
+  { thai: "มันฝรั่งหั่นเส้นผัด", alt: [], cn: "酸辣土豆丝", py: "suān là tǔ dòu sī", en: "sour & spicy potato strips", cat: "veg" },
+  { thai: "มันเทศ", alt: [], cn: "红薯", py: "hóng shǔ", en: "sweet potato", cat: "veg" },
+  { thai: "เผือก", alt: [], cn: "芋头", py: "yù tou", en: "taro", cat: "veg" },
+  { thai: "ถั่วฝักยาว", alt: [], cn: "豆角", py: "dòu jiǎo", en: "long bean", cat: "veg" },
+  { thai: "ถั่วลันเตา", alt: [], cn: "豌豆", py: "wān dòu", en: "pea / snow pea", cat: "veg" },
+  { thai: "ถั่วงอก", alt: [], cn: "豆芽", py: "dòu yá", en: "bean sprout", cat: "veg" },
+  { thai: "ผัดถั่วงอก", alt: [], cn: "炒豆芽", py: "chǎo dòu yá", en: "stir-fried bean sprouts", cat: "veg" },
+  { thai: "หัวหอม", alt: ["onion"], cn: "洋葱", py: "yáng cōng", en: "onion", cat: "veg" },
+  { thai: "พริก", alt: ["chili"], cn: "辣椒", py: "là jiāo", en: "chili pepper", cat: "veg" },
+  { thai: "พริกหวาน", alt: ["bell pepper"], cn: "甜椒", py: "tián jiāo", en: "bell pepper", cat: "veg" },
+  { thai: "เต้าหู้ไข่", alt: [], cn: "鸡蛋豆腐", py: "jī dàn dòu fu", en: "egg tofu", cat: "veg" },
+  { thai: "เต้าหู้ขาว", alt: [], cn: "白豆腐", py: "bái dòu fu", en: "white tofu", cat: "veg" },
+  { thai: "เต้าหู้เหม็น", alt: ["stinky tofu"], cn: "臭豆腐", py: "chòu dòu fu", en: "stinky tofu", cat: "veg" },
+  { thai: "ฟองเต้าหู้", alt: [], cn: "腐竹", py: "fǔ zhú", en: "tofu skin", cat: "veg" },
+  { thai: "วุ้นถั่วเขียว", alt: [], cn: "凉粉", py: "liáng fěn", en: "mung bean jelly", cat: "veg" },
+
+  // ── EXT: Soup ──
+  { thai: "ซุปกระดูกหมู", alt: [], cn: "排骨汤", py: "pái gǔ tāng", en: "pork rib soup", cat: "soup" },
+  { thai: "ซุปไก่ตุ๋นเห็ด", alt: [], cn: "蘑菇鸡汤", py: "mó gu jī tāng", en: "mushroom chicken soup", cat: "soup" },
+  { thai: "ซุปกระเทียม", alt: [], cn: "蒜头汤", py: "suàn tóu tāng", en: "garlic soup", cat: "soup" },
+  { thai: "ซุปฟัก", alt: [], cn: "冬瓜汤", py: "dōng guā tāng", en: "winter melon soup", cat: "soup" },
+  { thai: "ฟักตุ๋นกระดูก", alt: [], cn: "冬瓜排骨汤", py: "dōng guā pái gǔ tāng", en: "winter melon & pork rib soup", cat: "soup" },
+  { thai: "ซุปสาหร่าย", alt: [], cn: "紫菜汤", py: "zǐ cài tāng", en: "seaweed soup", cat: "soup" },
+  { thai: "ซุปลูกชิ้น", alt: [], cn: "丸子汤", py: "wán zi tāng", en: "meatball soup", cat: "soup" },
+  { thai: "ซุปเต้าหู้สาหร่าย", alt: [], cn: "豆腐紫菜汤", py: "dòu fu zǐ cài tāng", en: "tofu seaweed soup", cat: "soup" },
+  { thai: "ซุปปลา", alt: [], cn: "鱼汤", py: "yú tāng", en: "fish soup", cat: "soup" },
+  { thai: "ซุปหัวปลา", alt: [], cn: "鱼头汤", py: "yú tóu tāng", en: "fish head soup", cat: "soup" },
+  { thai: "ตุ๋นยาจีน", alt: [], cn: "药膳汤", py: "yào shàn tāng", en: "Chinese herbal soup", cat: "soup" },
+  { thai: "บะกุ้นเต๋", alt: ["bak kut teh"], cn: "肉骨茶", py: "ròu gǔ chá", en: "bak kut teh", cat: "soup" },
+  { thai: "ซุปข้าวโพดไก่", alt: [], cn: "玉米鸡汤", py: "yù mǐ jī tāng", en: "corn chicken soup", cat: "soup" },
+  { thai: "หม้อไฟปลา", alt: [], cn: "鱼火锅", py: "yú huǒ guō", en: "fish hotpot", cat: "soup" },
+  { thai: "หม้อไฟกุ้งมังกร", alt: [], cn: "龙虾火锅", py: "lóng xiā huǒ guō", en: "lobster hotpot", cat: "soup" },
+  { thai: "หม้อไฟไก่", alt: [], cn: "鸡火锅", py: "jī huǒ guō", en: "chicken hotpot", cat: "soup" },
+  { thai: "หม้อไฟเห็ด", alt: [], cn: "菌菇火锅", py: "jùn gū huǒ guō", en: "mushroom hotpot", cat: "soup" },
+  { thai: "หม้อไฟไต้หวัน", alt: [], cn: "台式火锅", py: "tái shì huǒ guō", en: "Taiwanese hotpot", cat: "soup" },
+  { thai: "หม้อไฟมะเขือเทศ", alt: [], cn: "番茄火锅", py: "fān qié huǒ guō", en: "tomato hotpot", cat: "soup" },
+  { thai: "หม้อไฟไก่ดำ", alt: [], cn: "乌鸡汤", py: "wū jī tāng", en: "black chicken soup", cat: "soup" },
+  { thai: "ตุ๋นรากบัว", alt: [], cn: "莲藕汤", py: "lián ǒu tāng", en: "lotus root soup", cat: "soup" },
+
+  // ── EXT: Desserts ──
+  { thai: "ทาร์ตไข่โปรตุเกส", alt: [], cn: "葡式蛋挞", py: "pú shì dàn tà", en: "Portuguese egg tart", cat: "dessert" },
+  { thai: "ขนมเปี๊ยะถั่วแดง", alt: [], cn: "红豆饼", py: "hóng dòu bǐng", en: "red bean pancake", cat: "dessert" },
+  { thai: "ซุปงาดำ", alt: [], cn: "黑芝麻糊", py: "hēi zhī ma hú", en: "black sesame soup", cat: "dessert" },
+  { thai: "ซุปถั่วแดง", alt: [], cn: "红豆汤", py: "hóng dòu tāng", en: "red bean soup", cat: "dessert" },
+  { thai: "ซุปถั่วเขียว", alt: [], cn: "绿豆汤", py: "lǜ dòu tāng", en: "mung bean soup", cat: "dessert" },
+  { thai: "สาคูมะม่วง", alt: [], cn: "芒果西米露", py: "máng guǒ xī mǐ lù", en: "mango sago", cat: "dessert" },
+  { thai: "สาคูถั่วเขียว", alt: [], cn: "绿豆西米露", py: "lǜ dòu xī mǐ lù", en: "mung bean sago", cat: "dessert" },
+  { thai: "สาคูฟักทอง", alt: [], cn: "南瓜西米露", py: "nán guā xī mǐ lù", en: "pumpkin sago", cat: "dessert" },
+  { thai: "เผือกไข่มุก", alt: ["taro ball"], cn: "芋圆", py: "yù yuán", en: "taro ball (Taiwanese)", cat: "dessert" },
+  { thai: "บัวลอยน้ำขิง", alt: [], cn: "姜汁汤圆", py: "jiāng zhī tāng yuán", en: "tangyuan in ginger soup", cat: "dessert" },
+  { thai: "ขนมถ้วยน้ำตาล", alt: [], cn: "钵仔糕", py: "bō zǎi gāo", en: "bowl cake (bo zai gao)", cat: "dessert" },
+  { thai: "เค้กข้าวเหนียวดำ", alt: [], cn: "黑糯米糕", py: "hēi nuò mǐ gāo", en: "black sticky rice cake", cat: "dessert" },
+  { thai: "กล้วยทอดน้ำตาลกรอบ", alt: [], cn: "拔丝香蕉", py: "bá sī xiāng jiāo", en: "candied banana", cat: "dessert" },
+  { thai: "มันเทศเชื่อม", alt: [], cn: "拔丝地瓜", py: "bá sī dì guā", en: "candied sweet potato", cat: "dessert" },
+  { thai: "แอปเปิ้ลเชื่อม", alt: [], cn: "拔丝苹果", py: "bá sī píng guǒ", en: "candied apple", cat: "dessert" },
+  { thai: "เจลลี่อัลมอนด์", alt: [], cn: "杏仁豆腐", py: "xìng rén dòu fu", en: "almond jelly", cat: "dessert" },
+  { thai: "วุ้นมะพร้าว", alt: [], cn: "椰子冻", py: "yē zi dòng", en: "coconut jelly", cat: "dessert" },
+  { thai: "ขนมโมจิ", alt: ["mochi"], cn: "麻薯", py: "má shǔ", en: "mochi", cat: "dessert" },
+  { thai: "ขนมหวานฮ่องกง", alt: [], cn: "港式甜品", py: "gǎng shì tián pǐn", en: "HK-style dessert", cat: "dessert" },
+  { thai: "ครีมไข่หวานนึ่ง", alt: [], cn: "炖蛋", py: "dùn dàn", en: "steamed egg pudding", cat: "dessert" },
+  { thai: "ขนมเบื้องจีน", alt: [], cn: "煎堆", py: "jiān duī", en: "fried sesame ball", cat: "dessert" },
+  { thai: "ไอติมถั่วแดง", alt: [], cn: "红豆冰", py: "hóng dòu bīng", en: "red bean shaved ice", cat: "dessert" },
+  { thai: "ไอติมแมงโก", alt: [], cn: "芒果冰", py: "máng guǒ bīng", en: "mango shaved ice", cat: "dessert" },
+
+  // ── EXT: Drinks ──
+  { thai: "ชาดอกไม้", alt: [], cn: "花茶", py: "huā chá", en: "flower tea", cat: "drink" },
+  { thai: "ชากุหลาบ", alt: [], cn: "玫瑰花茶", py: "méi gui huā chá", en: "rose tea", cat: "drink" },
+  { thai: "ชาผลไม้", alt: [], cn: "水果茶", py: "shuǐ guǒ chá", en: "fruit tea", cat: "drink" },
+  { thai: "ชาเย็นฮ่องกง", alt: ["HK milk tea"], cn: "港式奶茶", py: "gǎng shì nǎi chá", en: "HK-style milk tea", cat: "drink" },
+  { thai: "ชาเย็นไทย", alt: ["thai tea"], cn: "泰式奶茶", py: "tài shì nǎi chá", en: "Thai milk tea", cat: "drink" },
+  { thai: "ชานมไต้หวัน", alt: [], cn: "台湾奶茶", py: "tái wān nǎi chá", en: "Taiwan milk tea", cat: "drink" },
+  { thai: "ชาแอปเปิ้ล", alt: [], cn: "苹果茶", py: "píng guǒ chá", en: "apple tea", cat: "drink" },
+  { thai: "ชาเย็น", alt: [], cn: "冰茶", py: "bīng chá", en: "iced tea", cat: "drink" },
+  { thai: "ชาร้อน", alt: [], cn: "热茶", py: "rè chá", en: "hot tea", cat: "drink" },
+  { thai: "ลาเต้คาราเมล", alt: [], cn: "焦糖拿铁", py: "jiāo táng ná tiě", en: "caramel latte", cat: "drink" },
+  { thai: "ลาเต้มัทฉะ", alt: [], cn: "抹茶拿铁", py: "mǒ chá ná tiě", en: "matcha latte", cat: "drink" },
+  { thai: "ลาเต้วานิลลา", alt: [], cn: "香草拿铁", py: "xiāng cǎo ná tiě", en: "vanilla latte", cat: "drink" },
+  { thai: "เอสเปรสโซ่", alt: ["espresso"], cn: "浓缩咖啡", py: "nóng suō kā fēi", en: "espresso", cat: "drink" },
+  { thai: "มอคค่า", alt: ["mocha"], cn: "摩卡", py: "mó kǎ", en: "mocha", cat: "drink" },
+  { thai: "อเมริกาโนเย็น", alt: ["iced americano"], cn: "冰美式", py: "bīng měi shì", en: "iced americano", cat: "drink" },
+  { thai: "โอเลี้ยง", alt: [], cn: "泰式冰咖啡", py: "tài shì bīng kā fēi", en: "Thai iced coffee", cat: "drink" },
+  { thai: "กาแฟเย็น", alt: [], cn: "冰咖啡", py: "bīng kā fēi", en: "iced coffee", cat: "drink" },
+  { thai: "กาแฟร้อน", alt: [], cn: "热咖啡", py: "rè kā fēi", en: "hot coffee", cat: "drink" },
+  { thai: "กาแฟเวียดนาม", alt: [], cn: "越南咖啡", py: "yuè nán kā fēi", en: "Vietnamese coffee", cat: "drink" },
+  { thai: "น้ำอ้อย", alt: [], cn: "甘蔗汁", py: "gān zhe zhī", en: "sugarcane juice", cat: "drink" },
+  { thai: "น้ำมะม่วง", alt: [], cn: "芒果汁", py: "máng guǒ zhī", en: "mango juice", cat: "drink" },
+  { thai: "น้ำสับปะรด", alt: [], cn: "菠萝汁", py: "bō luó zhī", en: "pineapple juice", cat: "drink" },
+  { thai: "น้ำแตงโม", alt: [], cn: "西瓜汁", py: "xī guā zhī", en: "watermelon juice", cat: "drink" },
+  { thai: "น้ำองุ่น", alt: [], cn: "葡萄汁", py: "pú táo zhī", en: "grape juice", cat: "drink" },
+  { thai: "น้ำสตรอเบอร์รี่", alt: [], cn: "草莓汁", py: "cǎo méi zhī", en: "strawberry juice", cat: "drink" },
+  { thai: "สมูทตี้มะม่วง", alt: [], cn: "芒果冰沙", py: "máng guǒ bīng shā", en: "mango smoothie", cat: "drink" },
+  { thai: "สมูทตี้ผลไม้", alt: [], cn: "水果冰沙", py: "shuǐ guǒ bīng shā", en: "fruit smoothie", cat: "drink" },
+  { thai: "ชานมไข่มุกบราวน์ชูการ์", alt: [], cn: "黑糖珍珠奶茶", py: "hēi táng zhēn zhū nǎi chá", en: "brown sugar boba", cat: "drink" },
+  { thai: "ช็อกโกแลตร้อน", alt: [], cn: "热巧克力", py: "rè qiǎo kè lì", en: "hot chocolate", cat: "drink" },
+  { thai: "โกโก้", alt: ["cocoa"], cn: "可可", py: "kě kě", en: "cocoa", cat: "drink" },
+  { thai: "น้ำขิง", alt: [], cn: "姜汁", py: "jiāng zhī", en: "ginger drink", cat: "drink" },
+  { thai: "เก๊กฮวยน้ำผึ้ง", alt: [], cn: "蜂蜜菊花茶", py: "fēng mì jú huā chá", en: "honey chrysanthemum tea", cat: "drink" },
+  { thai: "นมข้น", alt: [], cn: "炼乳", py: "liàn rǔ", en: "condensed milk", cat: "drink" },
+  { thai: "นมสด", alt: [], cn: "鲜奶", py: "xiān nǎi", en: "fresh milk", cat: "drink" },
+  { thai: "โยเกิร์ต", alt: [], cn: "酸奶", py: "suān nǎi", en: "yogurt", cat: "drink" },
+  { thai: "สาเก", alt: ["sake"], cn: "清酒", py: "qīng jiǔ", en: "sake", cat: "drink" },
+  { thai: "เหล้าข้าวเหลือง", alt: [], cn: "黄酒", py: "huáng jiǔ", en: "Chinese yellow wine", cat: "drink" },
+  { thai: "วิสกี้", alt: [], cn: "威士忌", py: "wēi shì jì", en: "whisky", cat: "drink" },
+
+  // ── EXT: Thai food ──
+  { thai: "ต้มข่าไก่", alt: [], cn: "椰汁鸡汤", py: "yē zhī jī tāng", en: "tom kha gai", cat: "thai" },
+  { thai: "ต้มยำเห็ด", alt: [], cn: "蘑菇冬阴汤", py: "mó gu dōng yīn tāng", en: "tom yum mushroom", cat: "thai" },
+  { thai: "ต้มยำปลา", alt: [], cn: "冬阴鱼汤", py: "dōng yīn yú tāng", en: "tom yum fish", cat: "thai" },
+  { thai: "ต้มยำทะเล", alt: [], cn: "海鲜冬阴汤", py: "hǎi xiān dōng yīn tāng", en: "tom yum seafood", cat: "thai" },
+  { thai: "ต้มแซ่บ", alt: [], cn: "酸辣猪骨汤", py: "suān là zhū gǔ tāng", en: "Thai spicy pork bone soup", cat: "thai" },
+  { thai: "ต้มเล้ง", alt: [], cn: "猪脊骨冬阴汤", py: "zhū jǐ gǔ dōng yīn tāng", en: "Thai pork spine soup", cat: "thai" },
+  { thai: "ผัดกะเพราหมูสับ", alt: [], cn: "罗勒猪肉末", py: "luó lè zhū ròu mò", en: "Thai basil minced pork", cat: "thai" },
+  { thai: "ผัดกะเพราไก่", alt: [], cn: "罗勒鸡肉", py: "luó lè jī ròu", en: "Thai basil chicken", cat: "thai" },
+  { thai: "ผัดกะเพราเนื้อ", alt: [], cn: "罗勒牛肉", py: "luó lè niú ròu", en: "Thai basil beef", cat: "thai" },
+  { thai: "ผัดกะเพรากุ้ง", alt: [], cn: "罗勒虾", py: "luó lè xiā", en: "Thai basil shrimp", cat: "thai" },
+  { thai: "ผัดกะเพราหมูกรอบ", alt: [], cn: "罗勒脆皮猪", py: "luó lè cuì pí zhū", en: "Thai basil crispy pork", cat: "thai" },
+  { thai: "ผัดพริกแกง", alt: [], cn: "红咖喱炒肉", py: "hóng gā lí chǎo ròu", en: "red curry stir-fry", cat: "thai" },
+  { thai: "ฉู่ฉี่ปลา", alt: [], cn: "黄咖喱炒鱼", py: "huáng gā lí chǎo yú", en: "choo chee fish curry", cat: "thai" },
+  { thai: "ฉู่ฉี่กุ้ง", alt: [], cn: "红咖喱虾", py: "hóng gā lí xiā", en: "choo chee shrimp", cat: "thai" },
+  { thai: "พะแนงเนื้อ", alt: [], cn: "帕能咖喱牛肉", py: "pà néng gā lí niú ròu", en: "panang beef curry", cat: "thai" },
+  { thai: "พะแนงไก่", alt: [], cn: "帕能咖喱鸡", py: "pà néng gā lí jī", en: "panang chicken curry", cat: "thai" },
+  { thai: "แกงเหลือง", alt: [], cn: "黄咖喱", py: "huáng gā lí", en: "Southern Thai yellow curry", cat: "thai" },
+  { thai: "แกงป่า", alt: [], cn: "丛林咖喱", py: "cóng lín gā lí", en: "jungle curry", cat: "thai" },
+  { thai: "แกงส้ม", alt: [], cn: "泰式酸咖喱", py: "tài shì suān gā lí", en: "Thai sour curry", cat: "thai" },
+  { thai: "ห่อหมก", alt: [], cn: "泰式蒸鱼羹", py: "tài shì zhēng yú gēng", en: "Thai steamed fish curry custard", cat: "thai" },
+  { thai: "ยำวุ้นเส้น", alt: [], cn: "泰式凉拌粉丝", py: "tài shì liáng bàn fěn sī", en: "Thai spicy glass noodle salad", cat: "thai" },
+  { thai: "ยำใหญ่", alt: [], cn: "泰式大杂烩沙拉", py: "tài shì dà zá huì shā lā", en: "Thai grand salad", cat: "thai" },
+  { thai: "ยำเนื้อย่าง", alt: [], cn: "泰式烤牛肉沙拉", py: "tài shì kǎo niú ròu shā lā", en: "Thai grilled beef salad", cat: "thai" },
+  { thai: "ลาบหมู", alt: [], cn: "拉帕猪肉", py: "lā pà zhū ròu", en: "larb pork", cat: "thai" },
+  { thai: "ลาบไก่", alt: [], cn: "拉帕鸡肉", py: "lā pà jī ròu", en: "larb chicken", cat: "thai" },
+  { thai: "ลาบเป็ด", alt: [], cn: "拉帕鸭肉", py: "lā pà yā ròu", en: "larb duck", cat: "thai" },
+  { thai: "ลาบเนื้อ", alt: [], cn: "拉帕牛肉", py: "lā pà niú ròu", en: "larb beef", cat: "thai" },
+  { thai: "น้ำตกหมู", alt: [], cn: "泰式烤猪肉沙拉", py: "tài shì kǎo zhū ròu shā lā", en: "nam tok grilled pork", cat: "thai" },
+  { thai: "น้ำตกเนื้อ", alt: [], cn: "泰式烤牛肉沙拉", py: "tài shì kǎo niú ròu shā lā", en: "nam tok grilled beef", cat: "thai" },
+  { thai: "ไก่ย่าง", alt: [], cn: "泰式烤鸡", py: "tài shì kǎo jī", en: "Thai grilled chicken", cat: "thai" },
+  { thai: "หมูย่าง", alt: [], cn: "泰式烤猪", py: "tài shì kǎo zhū", en: "Thai grilled pork", cat: "thai" },
+  { thai: "คอหมูย่าง", alt: [], cn: "烤猪颈肉", py: "kǎo zhū jǐng ròu", en: "grilled pork neck", cat: "thai" },
+  { thai: "หมูสะเต๊ะ", alt: ["satay"], cn: "沙爹猪肉", py: "shā diē zhū ròu", en: "pork satay", cat: "thai" },
+  { thai: "ส้มตำไทย", alt: [], cn: "泰式青木瓜沙拉", py: "tài shì qīng mù guā shā lā", en: "som tam Thai", cat: "thai" },
+  { thai: "ส้มตำปูปลาร้า", alt: [], cn: "腌蟹木瓜沙拉", py: "yān xiè mù guā shā lā", en: "som tam with salted crab", cat: "thai" },
+  { thai: "ตำซั่ว", alt: [], cn: "米粉木瓜沙拉", py: "mǐ fěn mù guā shā lā", en: "tum sua (rice noodle papaya salad)", cat: "thai" },
+  { thai: "ขนมจีนน้ำยา", alt: [], cn: "泰式米线", py: "tài shì mǐ xiàn", en: "khanom jeen with fish curry", cat: "thai" },
+  { thai: "ขนมจีนน้ำเงี้ยว", alt: [], cn: "泰北番茄米线", py: "tài běi fān qié mǐ xiàn", en: "khanom jeen nam ngiao", cat: "thai" },
+  { thai: "ข้าวมันไก่", alt: ["hainan chicken"], cn: "泰式海南鸡饭", py: "tài shì hǎi nán jī fàn", en: "Thai-style chicken rice", cat: "thai" },
+  { thai: "ข้าวเหนียวสังขยา", alt: [], cn: "椰糖糯米饭", py: "yē táng nuò mǐ fàn", en: "sticky rice with coconut custard", cat: "thai" },
+  { thai: "ทับทิมกรอบ", alt: [], cn: "椰汁红宝石", py: "yē zhī hóng bǎo shí", en: "tub tim krob (water chestnut dessert)", cat: "thai" },
+  { thai: "ไก่ทอดหาดใหญ่", alt: [], cn: "合艾炸鸡", py: "hé ài zhá jī", en: "Hat Yai fried chicken", cat: "thai" },
+  { thai: "หอยทอด", alt: [], cn: "泰式蚝煎", py: "tài shì háo jiān", en: "Thai oyster omelet", cat: "thai" },
+  { thai: "ข้าวซอย", alt: [], cn: "泰北咖喱面", py: "tài běi gā lí miàn", en: "khao soi", cat: "thai" },
+  { thai: "ไส้อั่ว", alt: [], cn: "泰北香肠", py: "tài běi xiāng cháng", en: "Northern Thai sausage", cat: "thai" },
+  { thai: "แหนม", alt: [], cn: "酸肉", py: "suān ròu", en: "Thai sour fermented sausage", cat: "thai" },
+
+  // ── EXT: Japanese ──
+  { thai: "ราเมงทงคัตสึ", alt: ["tonkotsu"], cn: "豚骨拉面", py: "tún gǔ lā miàn", en: "tonkotsu ramen", cat: "jp" },
+  { thai: "ราเมงโชยุ", alt: ["shoyu"], cn: "酱油拉面", py: "jiàng yóu lā miàn", en: "shoyu ramen", cat: "jp" },
+  { thai: "ราเมงมิโซะ", alt: ["miso ramen"], cn: "味噌拉面", py: "wèi cēng lā miàn", en: "miso ramen", cat: "jp" },
+  { thai: "ราเมงเกลือ", alt: ["shio ramen"], cn: "盐味拉面", py: "yán wèi lā miàn", en: "shio ramen", cat: "jp" },
+  { thai: "ราเมงเผ็ด", alt: [], cn: "辣味拉面", py: "là wèi lā miàn", en: "spicy ramen", cat: "jp" },
+  { thai: "สึเคเมง", alt: ["tsukemen"], cn: "蘸面", py: "zhàn miàn", en: "tsukemen (dipping noodle)", cat: "jp" },
+  { thai: "ซูชิแซลมอน", alt: [], cn: "三文鱼寿司", py: "sān wén yú shòu sī", en: "salmon sushi", cat: "jp" },
+  { thai: "ซูชิทูน่า", alt: [], cn: "金枪鱼寿司", py: "jīn qiāng yú shòu sī", en: "tuna sushi", cat: "jp" },
+  { thai: "ซูชิกุ้ง", alt: [], cn: "虾寿司", py: "xiā shòu sī", en: "shrimp sushi", cat: "jp" },
+  { thai: "ซูชิไข่หวาน", alt: ["tamago"], cn: "玉子寿司", py: "yù zǐ shòu sī", en: "tamago sushi", cat: "jp" },
+  { thai: "ซูชิม้วน", alt: ["maki"], cn: "寿司卷", py: "shòu sī juǎn", en: "sushi roll (maki)", cat: "jp" },
+  { thai: "ซูชิแคลิฟอร์เนีย", alt: [], cn: "加州卷", py: "jiā zhōu juǎn", en: "California roll", cat: "jp" },
+  { thai: "ซาชิมิแซลมอน", alt: [], cn: "三文鱼刺身", py: "sān wén yú cì shēn", en: "salmon sashimi", cat: "jp" },
+  { thai: "ซาชิมิทูน่า", alt: [], cn: "金枪鱼刺身", py: "jīn qiāng yú cì shēn", en: "tuna sashimi", cat: "jp" },
+  { thai: "ปลาแซลมอน", alt: ["salmon"], cn: "三文鱼", py: "sān wén yú", en: "salmon", cat: "jp" },
+  { thai: "ปลาทูน่า", alt: ["tuna"], cn: "金枪鱼", py: "jīn qiāng yú", en: "tuna", cat: "jp" },
+  { thai: "ปลาฮามาจิ", alt: ["yellowtail"], cn: "鰤鱼", py: "shī yú", en: "yellowtail (hamachi)", cat: "jp" },
+  { thai: "ไข่ปลาแซลมอน", alt: ["ikura"], cn: "三文鱼籽", py: "sān wén yú zǐ", en: "salmon roe (ikura)", cat: "jp" },
+  { thai: "ข้าวหน้าหมูทอดญี่ปุ่น", alt: ["katsudon"], cn: "猪排饭", py: "zhū pái fàn", en: "katsudon", cat: "jp" },
+  { thai: "ข้าวหน้าเนื้อ", alt: ["gyudon"], cn: "牛丼", py: "niú dòng", en: "gyudon", cat: "jp" },
+  { thai: "ข้าวหน้าไก่ไข่", alt: ["oyakodon"], cn: "亲子丼", py: "qīn zǐ dòng", en: "oyakodon", cat: "jp" },
+  { thai: "ข้าวหน้าปลาไหล", alt: ["unagi don"], cn: "鳗鱼饭", py: "mán yú fàn", en: "unagi rice", cat: "jp" },
+  { thai: "ปลาไหลย่าง", alt: ["unagi"], cn: "烤鳗鱼", py: "kǎo mán yú", en: "grilled eel", cat: "jp" },
+  { thai: "ข้าวแกงกะหรี่ญี่ปุ่น", alt: [], cn: "日式咖喱饭", py: "rì shì gā lí fàn", en: "Japanese curry rice", cat: "jp" },
+  { thai: "ชาบูชาบู", alt: ["shabu"], cn: "涮涮锅", py: "shuàn shuàn guō", en: "shabu-shabu", cat: "jp" },
+  { thai: "สุกี้ยากี้", alt: ["sukiyaki"], cn: "寿喜烧", py: "shòu xǐ shāo", en: "sukiyaki", cat: "jp" },
+  { thai: "ทาโกะยากิ", alt: ["takoyaki"], cn: "章鱼烧", py: "zhāng yú shāo", en: "takoyaki", cat: "jp" },
+  { thai: "โอโคโนมิยากิ", alt: ["okonomiyaki"], cn: "大阪烧", py: "dà bǎn shāo", en: "okonomiyaki", cat: "jp" },
+  { thai: "โดรายากิ", alt: ["dorayaki"], cn: "铜锣烧", py: "tóng luó shāo", en: "dorayaki", cat: "jp" },
+  { thai: "ไทยากิ", alt: ["taiyaki"], cn: "鲷鱼烧", py: "diāo yú shāo", en: "taiyaki", cat: "jp" },
+  { thai: "ดังโงะ", alt: ["dango"], cn: "团子", py: "tuán zi", en: "dango", cat: "jp" },
+  { thai: "เอดามาเมะ", alt: ["edamame"], cn: "毛豆", py: "máo dòu", en: "edamame", cat: "jp" },
+  { thai: "เกี๊ยวซ่าญี่ปุ่น", alt: ["gyoza"], cn: "日式饺子", py: "rì shì jiǎo zi", en: "gyoza", cat: "jp" },
+  { thai: "เนื้อวากิว", alt: ["wagyu"], cn: "和牛", py: "hé niú", en: "wagyu beef", cat: "jp" },
+  { thai: "ซุปมิโซะ", alt: [], cn: "味噌汤", py: "wèi cēng tāng", en: "miso soup", cat: "jp" },
+  { thai: "ข้าวห่อสาหร่าย", alt: ["onigiri"], cn: "饭团", py: "fàn tuán", en: "onigiri / rice ball", cat: "jp" },
+  { thai: "ผักดองญี่ปุ่น", alt: ["tsukemono"], cn: "渍菜", py: "zì cài", en: "Japanese pickle", cat: "jp" },
+
+  // ── EXT: Korean ──
+  { thai: "ไก่ทอดเกาหลี", alt: ["korean fried chicken"], cn: "韩式炸鸡", py: "hán shì zhá jī", en: "Korean fried chicken", cat: "kr" },
+  { thai: "ไก่ทอดซอสแดง", alt: ["yangnyeom"], cn: "辣酱炸鸡", py: "là jiàng zhá jī", en: "yangnyeom chicken (spicy)", cat: "kr" },
+  { thai: "ไก่ทอดซอสกระเทียม", alt: [], cn: "蒜香炸鸡", py: "suàn xiāng zhá jī", en: "garlic fried chicken", cat: "kr" },
+  { thai: "ไก่ทอดซอสซีอิ๊ว", alt: [], cn: "酱油炸鸡", py: "jiàng yóu zhá jī", en: "soy garlic chicken", cat: "kr" },
+  { thai: "ชินราเมง", alt: ["shin ramyun"], cn: "辛拉面", py: "xīn lā miàn", en: "shin ramyun", cat: "kr" },
+  { thai: "ราเมงเกาหลี", alt: [], cn: "韩式拉面", py: "hán shì lā miàn", en: "Korean ramyun", cat: "kr" },
+  { thai: "หม้อไฟกิมจิ", alt: ["kimchi jjigae"], cn: "泡菜火锅", py: "pào cài huǒ guō", en: "kimchi stew", cat: "kr" },
+  { thai: "ซุปเต้าเจี้ยว", alt: ["doenjang"], cn: "大酱汤", py: "dà jiàng tāng", en: "doenjang stew", cat: "kr" },
+  { thai: "ซุนดูบู", alt: ["sundubu"], cn: "嫩豆腐汤", py: "nèn dòu fu tāng", en: "soft tofu stew", cat: "kr" },
+  { thai: "ปาจอน", alt: ["pajeon"], cn: "韩式煎饼", py: "hán shì jiān bǐng", en: "Korean pancake (pajeon)", cat: "kr" },
+  { thai: "ปาจอนทะเล", alt: [], cn: "海鲜葱饼", py: "hǎi xiān cōng bǐng", en: "seafood scallion pancake", cat: "kr" },
+  { thai: "ปาจอนกิมจิ", alt: [], cn: "泡菜煎饼", py: "pào cài jiān bǐng", en: "kimchi pancake", cat: "kr" },
+  { thai: "มันดู", alt: ["mandu"], cn: "韩式饺子", py: "hán shì jiǎo zi", en: "mandu (Korean dumpling)", cat: "kr" },
+  { thai: "เนื้อย่างเกาหลี", alt: ["KBBQ"], cn: "韩式烤肉", py: "hán shì kǎo ròu", en: "Korean BBQ", cat: "kr" },
+  { thai: "ซัมกยอบซัล", alt: ["samgyeopsal"], cn: "韩式五花肉", py: "hán shì wǔ huā ròu", en: "samgyeopsal (grilled pork belly)", cat: "kr" },
+  { thai: "กัลบี", alt: ["galbi"], cn: "牛排骨", py: "niú pái gǔ", en: "galbi (short ribs)", cat: "kr" },
+  { thai: "ดักกัลบี", alt: ["dakgalbi"], cn: "辣炒鸡", py: "là chǎo jī", en: "dakgalbi (spicy stir-fry chicken)", cat: "kr" },
+  { thai: "โซจู", alt: ["soju"], cn: "烧酒", py: "shāo jiǔ", en: "soju", cat: "kr" },
+  { thai: "มักก่อลี", alt: ["makgeolli"], cn: "马格利", py: "mǎ gé lì", en: "makgeolli (rice wine)", cat: "kr" },
+  { thai: "กิมจิแตงกวา", alt: [], cn: "黄瓜泡菜", py: "huáng guā pào cài", en: "cucumber kimchi", cat: "kr" },
+  { thai: "กิมจิหัวไชเท้า", alt: [], cn: "萝卜泡菜", py: "luó bo pào cài", en: "radish kimchi", cat: "kr" },
+  { thai: "หม้อไฟกองทัพ", alt: ["budae jjigae"], cn: "部队锅", py: "bù duì guō", en: "budae jjigae (army stew)", cat: "kr" },
+  { thai: "นังเมียน", alt: ["naengmyeon"], cn: "韩式冷面", py: "hán shì lěng miàn", en: "naengmyeon (cold noodle)", cat: "kr" },
+  { thai: "ตำกุก", alt: ["tteokguk"], cn: "年糕汤", py: "nián gāo tāng", en: "tteokguk (rice cake soup)", cat: "kr" },
+  { thai: "ฮอตอก", alt: ["hotteok"], cn: "韩式糖饼", py: "hán shì táng bǐng", en: "hotteok (sweet pancake)", cat: "kr" },
+
+  // ── EXT: Other Asian ──
+  { thai: "เฝอเนื้อ", alt: [], cn: "越南牛肉河粉", py: "yuè nán niú ròu hé fěn", en: "pho bo (beef pho)", cat: "other" },
+  { thai: "เฝอไก่", alt: [], cn: "越南鸡肉河粉", py: "yuè nán jī ròu hé fěn", en: "pho ga (chicken pho)", cat: "other" },
+  { thai: "หมี่กรอบเวียดนาม", alt: [], cn: "越南脆面", py: "yuè nán cuì miàn", en: "Vietnamese crispy noodle", cat: "other" },
+  { thai: "บั๋นแซว", alt: ["banh xeo"], cn: "越南煎饼", py: "yuè nán jiān bǐng", en: "banh xeo", cat: "other" },
+  { thai: "ก๋วยจั๊บญวน", alt: [], cn: "越南粉丝汤", py: "yuè nán fěn sī tāng", en: "Vietnamese tapioca noodle soup", cat: "other" },
+  { thai: "ข้าวซี่โครงเวียดนาม", alt: ["com tam"], cn: "越南排骨饭", py: "yuè nán pái gǔ fàn", en: "com tam (broken rice)", cat: "other" },
+  { thai: "มะตะบะ", alt: ["murtabak"], cn: "印度肉饼", py: "yìn dù ròu bǐng", en: "murtabak", cat: "other" },
+  { thai: "ลัสซี่", alt: ["lassi"], cn: "印度酸奶", py: "yìn dù suān nǎi", en: "lassi", cat: "other" },
+  { thai: "ทันดูรีไก่", alt: ["tandoori"], cn: "印度烤鸡", py: "yìn dù kǎo jī", en: "tandoori chicken", cat: "other" },
+  { thai: "ไก่ทิกก้ามาซาลา", alt: [], cn: "玛沙拉鸡", py: "mǎ shā lā jī", en: "tikka masala", cat: "other" },
+  { thai: "ชาอินเดียมาซาลา", alt: ["masala chai"], cn: "印度奶茶", py: "yìn dù nǎi chá", en: "masala chai", cat: "other" },
+  { thai: "ข้าวบริยานี", alt: ["biryani"], cn: "印度香饭", py: "yìn dù xiāng fàn", en: "biryani", cat: "other" },
+  { thai: "ปาปาดัม", alt: ["papadum"], cn: "印度脆饼", py: "yìn dù cuì bǐng", en: "papadum", cat: "other" },
+  { thai: "นาน", alt: ["naan"], cn: "印度馕", py: "yìn dù náng", en: "naan", cat: "other" },
+  { thai: "ลักซากะหรี่", alt: [], cn: "咖喱叻沙", py: "gā lí lè shā", en: "curry laksa", cat: "other" },
+  { thai: "นาซิเลอมัก", alt: ["nasi lemak"], cn: "椰浆饭", py: "yē jiāng fàn", en: "nasi lemak", cat: "other" },
+  { thai: "เรนดัง", alt: ["rendang"], cn: "仁当", py: "rén dāng", en: "rendang", cat: "other" },
+  { thai: "ไก่สะเต๊ะ", alt: ["chicken satay"], cn: "沙爹鸡肉串", py: "shā diē jī ròu chuàn", en: "chicken satay", cat: "other" },
+  { thai: "นาซิโกเรง", alt: ["nasi goreng"], cn: "印尼炒饭", py: "yìn ní chǎo fàn", en: "nasi goreng", cat: "other" },
+  { thai: "มีโกเรง", alt: ["mee goreng"], cn: "印尼炒面", py: "yìn ní chǎo miàn", en: "mee goreng", cat: "other" },
+  { thai: "ปอเปี๊ยะสด", alt: ["popiah"], cn: "薄饼", py: "báo bǐng", en: "popiah (fresh spring roll)", cat: "other" },
+  { thai: "ข้าวมันไก่สิงคโปร์", alt: [], cn: "海南鸡饭", py: "hǎi nán jī fàn", en: "Hainanese chicken rice (Singapore)", cat: "other" },
+  { thai: "ปูพริก", alt: ["chili crab"], cn: "辣椒蟹", py: "là jiāo xiè", en: "Singapore chili crab", cat: "other" },
+  { thai: "ปูพริกไทยดำ", alt: [], cn: "黑椒蟹", py: "hēi jiāo xiè", en: "black pepper crab", cat: "other" },
+
+  // ── วัตถุดิบ / Ingredients ──
+  { thai: "ข้าว", alt: ["rice"], cn: "米", py: "mǐ", en: "rice (grain)", cat: "ingredient" },
+  { thai: "ข้าวเหนียว", alt: [], cn: "糯米", py: "nuò mǐ", en: "glutinous rice", cat: "ingredient" },
+  { thai: "แป้ง", alt: ["flour"], cn: "面粉", py: "miàn fěn", en: "flour", cat: "ingredient" },
+  { thai: "แป้งข้าวเจ้า", alt: [], cn: "米粉", py: "mǐ fěn", en: "rice flour", cat: "ingredient" },
+  { thai: "ข้าวสาลี", alt: ["wheat"], cn: "小麦", py: "xiǎo mài", en: "wheat", cat: "ingredient" },
+  { thai: "ข้าวโพด", alt: ["corn"], cn: "玉米", py: "yù mǐ", en: "corn", cat: "ingredient" },
+  { thai: "ไข่", alt: ["egg"], cn: "鸡蛋", py: "jī dàn", en: "chicken egg", cat: "ingredient" },
+  { thai: "ไข่เป็ด", alt: [], cn: "鸭蛋", py: "yā dàn", en: "duck egg", cat: "ingredient" },
+  { thai: "ไข่นกกระทา", alt: [], cn: "鹌鹑蛋", py: "ān chún dàn", en: "quail egg", cat: "ingredient" },
+  { thai: "ไข่เยี่ยวม้า", alt: ["century egg"], cn: "皮蛋", py: "pí dàn", en: "century egg", cat: "ingredient" },
+  { thai: "ไข่เค็ม", alt: [], cn: "咸蛋", py: "xián dàn", en: "salted egg", cat: "ingredient" },
+  { thai: "ไข่ดาว", alt: [], cn: "煎蛋", py: "jiān dàn", en: "fried egg / sunny side up", cat: "ingredient" },
+  { thai: "ไข่ต้ม", alt: [], cn: "水煮蛋", py: "shuǐ zhǔ dàn", en: "boiled egg", cat: "ingredient" },
+  { thai: "ไข่ตุ๋น", alt: [], cn: "蒸蛋", py: "zhēng dàn", en: "steamed egg custard", cat: "ingredient" },
+  { thai: "ไข่เจียว", alt: [], cn: "蛋饼", py: "dàn bǐng", en: "omelet", cat: "ingredient" },
+  { thai: "น้ำมัน", alt: ["oil"], cn: "油", py: "yóu", en: "oil", cat: "ingredient" },
+  { thai: "น้ำมันงา", alt: [], cn: "香油", py: "xiāng yóu", en: "sesame oil", cat: "ingredient" },
+  { thai: "น้ำมันพริก", alt: ["chili oil"], cn: "辣椒油", py: "là jiāo yóu", en: "chili oil", cat: "ingredient" },
+  { thai: "เกลือ", alt: ["salt"], cn: "盐", py: "yán", en: "salt", cat: "ingredient" },
+  { thai: "น้ำตาล", alt: ["sugar"], cn: "糖", py: "táng", en: "sugar", cat: "ingredient" },
+  { thai: "น้ำตาลโตนด", alt: [], cn: "椰糖", py: "yē táng", en: "palm sugar", cat: "ingredient" },
+  { thai: "น้ำผึ้ง", alt: ["honey"], cn: "蜂蜜", py: "fēng mì", en: "honey", cat: "ingredient" },
+  { thai: "พริกไทย", alt: [], cn: "胡椒", py: "hú jiāo", en: "pepper", cat: "ingredient" },
+  { thai: "พริกไทยดำ", alt: [], cn: "黑胡椒", py: "hēi hú jiāo", en: "black pepper", cat: "ingredient" },
+  { thai: "พริกหม่าล่า", alt: ["sichuan pepper"], cn: "花椒", py: "huā jiāo", en: "Sichuan peppercorn", cat: "ingredient" },
+  { thai: "กระเทียม", alt: ["garlic"], cn: "大蒜", py: "dà suàn", en: "garlic", cat: "ingredient" },
+  { thai: "ต้นหอม", alt: ["scallion"], cn: "葱", py: "cōng", en: "scallion / green onion", cat: "ingredient" },
+  { thai: "ขิง", alt: ["ginger"], cn: "姜", py: "jiāng", en: "ginger", cat: "ingredient" },
+  { thai: "ตะไคร้", alt: ["lemongrass"], cn: "香茅", py: "xiāng máo", en: "lemongrass", cat: "ingredient" },
+  { thai: "ใบมะกรูด", alt: [], cn: "青柠叶", py: "qīng níng yè", en: "kaffir lime leaf", cat: "ingredient" },
+  { thai: "ใบโหระพา", alt: ["basil"], cn: "罗勒", py: "luó lè", en: "basil", cat: "ingredient" },
+  { thai: "ผักชี", alt: ["cilantro"], cn: "香菜", py: "xiāng cài", en: "cilantro / coriander", cat: "ingredient" },
+  { thai: "สะระแหน่", alt: ["mint"], cn: "薄荷", py: "bò he", en: "mint", cat: "ingredient" },
+  { thai: "ข่า", alt: ["galangal"], cn: "南姜", py: "nán jiāng", en: "galangal", cat: "ingredient" },
+  { thai: "โป๊ยกั๊ก", alt: ["star anise"], cn: "八角", py: "bā jiǎo", en: "star anise", cat: "ingredient" },
+  { thai: "อบเชย", alt: ["cinnamon"], cn: "桂皮", py: "guì pí", en: "cinnamon", cat: "ingredient" },
+  { thai: "ยี่หร่า", alt: [], cn: "孜然", py: "zī rán", en: "cumin", cat: "ingredient" },
+  { thai: "ซีอิ๊วขาว", alt: ["light soy"], cn: "生抽", py: "shēng chōu", en: "light soy sauce", cat: "ingredient" },
+  { thai: "ซีอิ๊วดำ", alt: ["dark soy"], cn: "老抽", py: "lǎo chōu", en: "dark soy sauce", cat: "ingredient" },
+  { thai: "ซีอิ๊ว", alt: ["soy sauce"], cn: "酱油", py: "jiàng yóu", en: "soy sauce", cat: "ingredient" },
+  { thai: "น้ำมันหอย", alt: ["oyster sauce"], cn: "蚝油", py: "háo yóu", en: "oyster sauce", cat: "ingredient" },
+  { thai: "น้ำปลา", alt: ["fish sauce"], cn: "鱼露", py: "yú lù", en: "fish sauce", cat: "ingredient" },
+  { thai: "กะปิ", alt: ["shrimp paste"], cn: "虾酱", py: "xiā jiàng", en: "shrimp paste", cat: "ingredient" },
+  { thai: "เต้าเจี้ยว", alt: ["doubanjiang"], cn: "豆瓣酱", py: "dòu bàn jiàng", en: "fermented bean paste", cat: "ingredient" },
+  { thai: "น้ำส้มสายชู", alt: ["vinegar"], cn: "醋", py: "cù", en: "vinegar", cat: "ingredient" },
+  { thai: "น้ำส้มสายชูดำ", alt: [], cn: "黑醋", py: "hēi cù", en: "black vinegar", cat: "ingredient" },
+  { thai: "ซอสมะเขือเทศ", alt: [], cn: "番茄酱", py: "fān qié jiàng", en: "ketchup", cat: "ingredient" },
+  { thai: "ซอสพริก", alt: [], cn: "辣椒酱", py: "là jiāo jiàng", en: "chili sauce", cat: "ingredient" },
+  { thai: "มัสตาร์ด", alt: ["mustard","wasabi"], cn: "芥末", py: "jiè mò", en: "mustard / wasabi", cat: "ingredient" },
+  { thai: "มายองเนส", alt: ["mayo"], cn: "蛋黄酱", py: "dàn huáng jiàng", en: "mayonnaise", cat: "ingredient" },
+  { thai: "เนย", alt: ["butter"], cn: "黄油", py: "huáng yóu", en: "butter", cat: "ingredient" },
+  { thai: "ชีส", alt: ["cheese"], cn: "奶酪", py: "nǎi lào", en: "cheese", cat: "ingredient" },
+  { thai: "งา", alt: ["sesame"], cn: "芝麻", py: "zhī ma", en: "sesame", cat: "ingredient" },
+  { thai: "งาดำ", alt: [], cn: "黑芝麻", py: "hēi zhī ma", en: "black sesame", cat: "ingredient" },
+  { thai: "ถั่วลิสง", alt: ["peanut"], cn: "花生", py: "huā shēng", en: "peanut", cat: "ingredient" },
+  { thai: "ถั่วเหลือง", alt: ["soybean"], cn: "黄豆", py: "huáng dòu", en: "soybean", cat: "ingredient" },
+  { thai: "ถั่วแดง", alt: [], cn: "红豆", py: "hóng dòu", en: "red bean", cat: "ingredient" },
+  { thai: "ถั่วเขียว", alt: [], cn: "绿豆", py: "lǜ dòu", en: "mung bean", cat: "ingredient" },
+  { thai: "ถั่วดำ", alt: [], cn: "黑豆", py: "hēi dòu", en: "black bean", cat: "ingredient" },
+  { thai: "เม็ดมะม่วงหิมพานต์", alt: ["cashew"], cn: "腰果", py: "yāo guǒ", en: "cashew", cat: "ingredient" },
+  { thai: "อัลมอนด์", alt: [], cn: "杏仁", py: "xìng rén", en: "almond", cat: "ingredient" },
+  { thai: "วอลนัท", alt: [], cn: "核桃", py: "hé tao", en: "walnut", cat: "ingredient" },
+  { thai: "พุทราจีน", alt: [], cn: "红枣", py: "hóng zǎo", en: "Chinese red date / jujube", cat: "ingredient" },
+  { thai: "เก๋ากี้", alt: ["goji"], cn: "枸杞", py: "gǒu qǐ", en: "goji berry", cat: "ingredient" },
+  { thai: "ขิงดอง", alt: [], cn: "腌姜", py: "yān jiāng", en: "pickled ginger", cat: "ingredient" },
+  { thai: "หัวไชโป๊ว", alt: [], cn: "萝卜干", py: "luó bo gān", en: "dried radish", cat: "ingredient" },
+  { thai: "กุนเชียง", alt: [], cn: "腊肠", py: "là cháng", en: "Chinese sausage (lap cheong)", cat: "ingredient" },
+  { thai: "เบคอนจีน", alt: [], cn: "腊肉", py: "là ròu", en: "Chinese cured pork (lap yuk)", cat: "ingredient" },
+  { thai: "กุ้งแห้ง", alt: ["dried shrimp"], cn: "虾米", py: "xiā mǐ", en: "dried shrimp", cat: "ingredient" },
+  { thai: "ปลาแห้ง", alt: [], cn: "鱼干", py: "yú gān", en: "dried fish", cat: "ingredient" },
+  { thai: "สาหร่ายแผ่น", alt: ["nori"], cn: "海苔", py: "hǎi tái", en: "nori seaweed", cat: "ingredient" },
+  { thai: "สาหร่ายม่วง", alt: [], cn: "紫菜", py: "zǐ cài", en: "purple seaweed", cat: "ingredient" },
+  { thai: "สาหร่ายทะเล", alt: ["kombu"], cn: "海带", py: "hǎi dài", en: "kelp / kombu", cat: "ingredient" },
+
+  // ── ผลไม้ / Fruits ──
+  { thai: "ผลไม้", alt: ["fruit"], cn: "水果", py: "shuǐ guǒ", en: "fruit", cat: "fruit" },
+  { thai: "แอปเปิ้ล", alt: ["apple"], cn: "苹果", py: "píng guǒ", en: "apple", cat: "fruit" },
+  { thai: "กล้วย", alt: ["banana"], cn: "香蕉", py: "xiāng jiāo", en: "banana", cat: "fruit" },
+  { thai: "ส้ม", alt: ["orange"], cn: "橙子", py: "chéng zi", en: "orange", cat: "fruit" },
+  { thai: "ส้มเขียวหวาน", alt: [], cn: "橘子", py: "jú zi", en: "mandarin orange", cat: "fruit" },
+  { thai: "มะนาว", alt: ["lime","lemon"], cn: "柠檬", py: "níng méng", en: "lemon / lime", cat: "fruit" },
+  { thai: "มะม่วง", alt: ["mango"], cn: "芒果", py: "máng guǒ", en: "mango", cat: "fruit" },
+  { thai: "สับปะรด", alt: ["pineapple"], cn: "菠萝", py: "bō luó", en: "pineapple", cat: "fruit" },
+  { thai: "มะละกอ", alt: ["papaya"], cn: "木瓜", py: "mù guā", en: "papaya", cat: "fruit" },
+  { thai: "แตงโม", alt: ["watermelon"], cn: "西瓜", py: "xī guā", en: "watermelon", cat: "fruit" },
+  { thai: "แตงไทย", alt: [], cn: "哈密瓜", py: "hā mì guā", en: "hami melon / cantaloupe", cat: "fruit" },
+  { thai: "เมล่อน", alt: ["melon"], cn: "蜜瓜", py: "mì guā", en: "honeydew melon", cat: "fruit" },
+  { thai: "องุ่น", alt: ["grape"], cn: "葡萄", py: "pú táo", en: "grape", cat: "fruit" },
+  { thai: "สตรอเบอร์รี่", alt: ["strawberry"], cn: "草莓", py: "cǎo méi", en: "strawberry", cat: "fruit" },
+  { thai: "บลูเบอร์รี่", alt: ["blueberry"], cn: "蓝莓", py: "lán méi", en: "blueberry", cat: "fruit" },
+  { thai: "ราสเบอร์รี่", alt: ["raspberry"], cn: "树莓", py: "shù méi", en: "raspberry", cat: "fruit" },
+  { thai: "เชอร์รี่", alt: ["cherry"], cn: "樱桃", py: "yīng táo", en: "cherry", cat: "fruit" },
+  { thai: "ลูกพีช", alt: ["peach"], cn: "桃子", py: "táo zi", en: "peach", cat: "fruit" },
+  { thai: "ลูกแพร์", alt: ["pear"], cn: "梨", py: "lí", en: "pear", cat: "fruit" },
+  { thai: "ลูกพลัม", alt: ["plum"], cn: "李子", py: "lǐ zi", en: "plum", cat: "fruit" },
+  { thai: "บ๊วย", alt: [], cn: "梅子", py: "méi zi", en: "Chinese plum / ume", cat: "fruit" },
+  { thai: "กีวี่", alt: ["kiwi"], cn: "猕猴桃", py: "mí hóu táo", en: "kiwi", cat: "fruit" },
+  { thai: "ลำไย", alt: ["longan"], cn: "龙眼", py: "lóng yǎn", en: "longan", cat: "fruit" },
+  { thai: "ลิ้นจี่", alt: ["lychee"], cn: "荔枝", py: "lì zhī", en: "lychee", cat: "fruit" },
+  { thai: "ทุเรียน", alt: ["durian"], cn: "榴莲", py: "liú lián", en: "durian", cat: "fruit" },
+  { thai: "มังคุด", alt: ["mangosteen"], cn: "山竹", py: "shān zhú", en: "mangosteen", cat: "fruit" },
+  { thai: "เงาะ", alt: ["rambutan"], cn: "红毛丹", py: "hóng máo dān", en: "rambutan", cat: "fruit" },
+  { thai: "ขนุน", alt: ["jackfruit"], cn: "菠萝蜜", py: "bō luó mì", en: "jackfruit", cat: "fruit" },
+  { thai: "ลูกพลับ", alt: ["persimmon"], cn: "柿子", py: "shì zi", en: "persimmon", cat: "fruit" },
+  { thai: "ฝรั่ง", alt: ["guava"], cn: "番石榴", py: "fān shí liu", en: "guava", cat: "fruit" },
+  { thai: "ทับทิม", alt: ["pomegranate"], cn: "石榴", py: "shí liu", en: "pomegranate", cat: "fruit" },
+  { thai: "มะพร้าว", alt: ["coconut"], cn: "椰子", py: "yē zi", en: "coconut", cat: "fruit" },
+  { thai: "อะโวคาโด", alt: ["avocado"], cn: "牛油果", py: "niú yóu guǒ", en: "avocado", cat: "fruit" },
+  { thai: "แก้วมังกร", alt: ["dragon fruit"], cn: "火龙果", py: "huǒ lóng guǒ", en: "dragon fruit", cat: "fruit" },
+  { thai: "ส้มโอ", alt: ["pomelo"], cn: "柚子", py: "yòu zi", en: "pomelo", cat: "fruit" },
+  { thai: "ชมพู่", alt: ["rose apple"], cn: "莲雾", py: "lián wù", en: "rose apple / wax apple", cat: "fruit" },
+
+  // ── เครื่องตุ๋น/บำรุง / Tonic & Chinese-Thai banquet ──
+  { thai: "กระเพาะปลา", alt: ["fish maw","ซุปกระเพาะปลา"], cn: "鱼肚羹", py: "yú dǔ gēng", en: "fish maw soup", cat: "tonic" },
+  { thai: "กระเพาะปลาน้ำแดง", alt: [], cn: "红烧鱼肚", py: "hóng shāo yú dǔ", en: "red-braised fish maw", cat: "tonic" },
+  { thai: "กระเพาะปลาน้ำใส", alt: [], cn: "清汤鱼肚", py: "qīng tāng yú dǔ", en: "clear fish maw soup", cat: "tonic" },
+  { thai: "กระเพาะปลาเยื่อไผ่", alt: [], cn: "竹荪鱼肚", py: "zhú sūn yú dǔ", en: "fish maw with bamboo pith", cat: "tonic" },
+  { thai: "กระเพาะปลาน้ำแดงปู", alt: [], cn: "蟹肉鱼肚羹", py: "xiè ròu yú dǔ gēng", en: "fish maw with crab meat", cat: "tonic" },
+  { thai: "หูฉลาม", alt: ["shark fin"], cn: "鱼翅", py: "yú chì", en: "shark fin", cat: "tonic" },
+  { thai: "ซุปหูฉลาม", alt: [], cn: "鱼翅羹", py: "yú chì gēng", en: "shark fin soup", cat: "tonic" },
+  { thai: "หูฉลามน้ำแดง", alt: [], cn: "红烧鱼翅", py: "hóng shāo yú chì", en: "red-braised shark fin", cat: "tonic" },
+  { thai: "หูฉลามเสริม", alt: [], cn: "鸡丝鱼翅", py: "jī sī yú chì", en: "shark fin with shredded chicken", cat: "tonic" },
+  { thai: "รังนก", alt: ["bird's nest"], cn: "燕窝", py: "yàn wō", en: "bird's nest", cat: "tonic" },
+  { thai: "รังนกตุ๋นน้ำตาลกรวด", alt: [], cn: "冰糖燕窝", py: "bīng táng yàn wō", en: "bird's nest with rock sugar", cat: "tonic" },
+  { thai: "รังนกน้ำมะพร้าว", alt: [], cn: "椰汁燕窝", py: "yē zhī yàn wō", en: "bird's nest in coconut", cat: "tonic" },
+  { thai: "รังนกตุ๋นไก่", alt: [], cn: "燕窝炖鸡", py: "yàn wō dùn jī", en: "bird's nest stewed with chicken", cat: "tonic" },
+  { thai: "ปลิงทะเล", alt: ["sea cucumber"], cn: "海参", py: "hǎi shēn", en: "sea cucumber", cat: "tonic" },
+  { thai: "ปลิงทะเลน้ำแดง", alt: [], cn: "红烧海参", py: "hóng shāo hǎi shēn", en: "red-braised sea cucumber", cat: "tonic" },
+  { thai: "ปลิงทะเลผัดต้นหอม", alt: [], cn: "葱烧海参", py: "cōng shāo hǎi shēn", en: "scallion-braised sea cucumber", cat: "tonic" },
+  { thai: "เป๋าฮื้อตุ๋นน้ำแดง", alt: ["abalone"], cn: "红烧鲍鱼", py: "hóng shāo bào yú", en: "red-braised abalone", cat: "tonic" },
+  { thai: "เป๋าฮื้อนึ่ง", alt: [], cn: "清蒸鲍鱼", py: "qīng zhēng bào yú", en: "steamed abalone", cat: "tonic" },
+  { thai: "หอยเชลล์แห้ง", alt: ["dried scallop","conpoy"], cn: "干贝", py: "gān bèi", en: "dried scallop (conpoy)", cat: "tonic" },
+  { thai: "ซุปฟักหอยเชลล์", alt: [], cn: "冬瓜瑶柱汤", py: "dōng guā yáo zhù tāng", en: "winter melon & dried scallop soup", cat: "tonic" },
+  { thai: "ข้าวต้มหอยเชลล์แห้ง", alt: [], cn: "瑶柱粥", py: "yáo zhù zhōu", en: "dried scallop congee", cat: "tonic" },
+  { thai: "ไก่ตุ๋นโสม", alt: ["ginseng chicken"], cn: "人参鸡", py: "rén shēn jī", en: "ginseng chicken soup", cat: "tonic" },
+  { thai: "ไก่ตุ๋นเห็ดหลินจือ", alt: [], cn: "灵芝鸡汤", py: "líng zhī jī tāng", en: "lingzhi mushroom chicken soup", cat: "tonic" },
+  { thai: "ไก่ดำตุ๋นยาจีน", alt: [], cn: "乌鸡药膳汤", py: "wū jī yào shàn tāng", en: "herbal black chicken soup", cat: "tonic" },
+  { thai: "ไก่ตุ๋นเก๋ากี้", alt: [], cn: "枸杞炖鸡", py: "gǒu qǐ dùn jī", en: "goji berry stewed chicken", cat: "tonic" },
+  { thai: "ตีนไก่ตุ๋นยา", alt: [], cn: "药膳凤爪", py: "yào shàn fèng zhuǎ", en: "herbal chicken feet", cat: "tonic" },
+  { thai: "ตีนไก่ตุ๋นถั่วลิสง", alt: [], cn: "花生凤爪", py: "huā shēng fèng zhuǎ", en: "peanut chicken feet soup", cat: "tonic" },
+  { thai: "ขาหมูพะโล้", alt: ["palo pork"], cn: "卤猪脚", py: "lǔ zhū jiǎo", en: "five-spice braised pork knuckle (palo)", cat: "tonic" },
+  { thai: "พะโล้ไข่", alt: [], cn: "卤蛋", py: "lǔ dàn", en: "palo egg (five-spice braised)", cat: "tonic" },
+  { thai: "เป็ดพะโล้", alt: [], cn: "卤鸭", py: "lǔ yā", en: "palo duck (five-spice)", cat: "tonic" },
+  { thai: "หมูพะโล้", alt: [], cn: "卤猪肉", py: "lǔ zhū ròu", en: "palo pork", cat: "tonic" },
+  { thai: "ไก่พะโล้", alt: [], cn: "卤鸡", py: "lǔ jī", en: "palo chicken", cat: "tonic" },
+  { thai: "เครื่องในพะโล้", alt: [], cn: "卤味拼盘", py: "lǔ wèi pīn pán", en: "palo offal platter", cat: "tonic" },
+  { thai: "ก๋วยเตี๋ยวเป็ดตุ๋น", alt: [], cn: "卤鸭面", py: "lǔ yā miàn", en: "braised duck noodle", cat: "tonic" },
+  { thai: "ข้าวขาหมู", alt: [], cn: "卤猪脚饭", py: "lǔ zhū jiǎo fàn", en: "palo pork knuckle rice", cat: "tonic" },
+  { thai: "ข้าวหมูแดง", alt: [], cn: "叉烧饭", py: "chā shāo fàn", en: "BBQ pork rice", cat: "tonic" },
+  { thai: "ข้าวหมูกรอบ", alt: [], cn: "脆皮烧肉饭", py: "cuì pí shāo ròu fàn", en: "crispy pork belly rice", cat: "tonic" },
+  { thai: "จับฉ่าย", alt: ["chap chai"], cn: "杂菜汤", py: "zá cài tāng", en: "mixed vegetable stew (chap chai)", cat: "tonic" },
+  { thai: "จับฉ่ายเจ", alt: [], cn: "罗汉斋", py: "luó hàn zhāi", en: "Buddha's delight (vegetarian chap chai)", cat: "tonic" },
+  { thai: "ปลาเก๋านึ่งซีอิ๊ว", alt: [], cn: "清蒸石斑", py: "qīng zhēng shí bān", en: "steamed grouper", cat: "tonic" },
+  { thai: "ปลานึ่งบ๊วย", alt: [], cn: "梅子蒸鱼", py: "méi zi zhēng yú", en: "steamed fish with plum", cat: "tonic" },
+  { thai: "ซี่โครงนึ่งบ๊วย", alt: [], cn: "酸梅蒸排骨", py: "suān méi zhēng pái gǔ", en: "steamed pork ribs with plum", cat: "tonic" },
+  { thai: "ข้าวต้มกุ๊ย", alt: [], cn: "潮州粥", py: "cháo zhōu zhōu", en: "Teochew rice porridge with side dishes", cat: "tonic" },
+  { thai: "เกี๊ยมอี๋", alt: [], cn: "潮州粿条", py: "cháo zhōu guǒ tiáo", en: "kiamoi (Teochew rice paste)", cat: "tonic" },
+  { thai: "เครื่องในวัวตุ๋น", alt: [], cn: "牛杂", py: "niú zá", en: "braised beef offal", cat: "tonic" },
+  { thai: "ตับห่านนึ่ง", alt: [], cn: "蒸鹅肝", py: "zhēng é gān", en: "steamed goose liver", cat: "tonic" },
+];
+
+const CATS = [
+  { id: "all",       th: "ทั้งหมด",      cn: "全部" },
+  { id: "dimsum",    th: "ติ่มซำ",        cn: "点心" },
+  { id: "noodle",    th: "ก๋วยเตี๋ยว",   cn: "面" },
+  { id: "rice",      th: "ข้าว",          cn: "饭" },
+  { id: "sichuan",   th: "เสฉวน",         cn: "川" },
+  { id: "canton",    th: "กวางตุ้ง",      cn: "粤" },
+  { id: "north",     th: "ภาคเหนือจีน",   cn: "京" },
+  { id: "shanghai",  th: "เซี่ยงไฮ้",     cn: "沪" },
+  { id: "tonic",     th: "เครื่องตุ๋น/บำรุง", cn: "滋补" },
+  { id: "meat",      th: "เนื้อสัตว์",    cn: "肉" },
+  { id: "seafood",   th: "ทะเล",          cn: "海鲜" },
+  { id: "veg",       th: "ผัก",           cn: "蔬" },
+  { id: "soup",      th: "ซุป/หม้อไฟ",   cn: "汤" },
+  { id: "snack",     th: "ของกินเล่น",   cn: "小吃" },
+  { id: "dessert",   th: "ของหวาน",       cn: "甜" },
+  { id: "drink",     th: "เครื่องดื่ม",   cn: "饮" },
+  { id: "fruit",     th: "ผลไม้",         cn: "果" },
+  { id: "ingredient",th: "วัตถุดิบ",      cn: "食材" },
+  { id: "thai",      th: "ไทย→จีน",      cn: "泰" },
+  { id: "jp",        th: "ญี่ปุ่น",       cn: "日" },
+  { id: "kr",        th: "เกาหลี",         cn: "韓" },
+  { id: "other",     th: "อื่นๆ",         cn: "其他" },
+];
+
+/* ───── Search ───── */
+const PINYIN_STRIP = { 'ā':'a','á':'a','ǎ':'a','à':'a','ē':'e','é':'e','ě':'e','è':'e','ī':'i','í':'i','ǐ':'i','ì':'i','ō':'o','ó':'o','ǒ':'o','ò':'o','ū':'u','ú':'u','ǔ':'u','ù':'u','ǖ':'v','ǘ':'v','ǚ':'v','ǜ':'v','ü':'v' };
+function stripPinyin(s) { return s.replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/g, c => PINYIN_STRIP[c] || c).toLowerCase(); }
+
+// Strip Thai tone & vowel diacritics for loose matching
+function normThai(s) {
+  return s.toLowerCase().replace(/\s+/g,'').replace(/[\u0E47-\u0E4E\u0E30-\u0E3A]/g,'');
+}
+function isThai(s) { return /[\u0E00-\u0E7F]/.test(s); }
+
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  const la = a.length, lb = b.length;
+  if (!la) return lb;
+  if (!lb) return la;
+  let prev = new Array(lb + 1);
+  let curr = new Array(lb + 1);
+  for (let j = 0; j <= lb; j++) prev[j] = j;
+  for (let i = 1; i <= la; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= lb; j++) {
+      const cost = a.charCodeAt(i-1) === b.charCodeAt(j-1) ? 0 : 1;
+      curr[j] = Math.min(curr[j-1] + 1, prev[j] + 1, prev[j-1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[lb];
+}
+
+function scoreItem(item, query) {
+  if (!query) return 1;
+  const isThaiQ = isThai(query);
+  const qLow = query.toLowerCase().trim();
+  const qThaiNorm = normThai(query);
+
+  // Candidates: [string, weight, normalize-as-thai?]
+  const cands = [];
+  cands.push([item.thai, 1.00, true]);
+  (item.alt || []).forEach(a => cands.push([a, 0.92, isThai(a)]));
+  cands.push([item.en, 0.78, false]);
+  cands.push([item.py, 0.78, false]);
+  cands.push([stripPinyin(item.py), 0.78, false]);
+  cands.push([item.cn, 1.00, false]);
+
+  let best = 0;
+  for (const [val, w, isThaiTarget] of cands) {
+    if (!val) continue;
+    const v = isThaiTarget ? normThai(val) : val.toLowerCase();
+    const q = isThaiQ && isThaiTarget ? qThaiNorm : qLow;
+    if (!q) continue;
+    let s = 0;
+    if (v === q) s = 100;
+    else if (v.startsWith(q)) s = 92;
+    else if (v.includes(q)) s = 80;
+    else if (q.length >= 3) {
+      const d = levenshtein(v, q);
+      const ratio = 1 - d / Math.max(v.length, q.length);
+      if (ratio > 0.55) s = ratio * 65;
+    }
+    s *= w;
+    if (s > best) best = s;
+  }
+  return best;
+}
+
+function highlight(text, query) {
+  if (!query || !text) return text;
+  // Find a contiguous match (case insensitive). For Thai we don't strip diacritics in display.
+  const lower = text.toLowerCase();
+  const q = query.toLowerCase().trim();
+  const idx = lower.indexOf(q);
+  if (idx >= 0) {
+    return text.slice(0,idx) + '<mark>' + text.slice(idx, idx+q.length) + '</mark>' + text.slice(idx+q.length);
+  }
+  return text;
+}
+
+/* ───── Render ───── */
+let activeCat = "all";
+let currentQuery = "";
+
+function renderCats() {
+  const wrap = document.getElementById('cats');
+  wrap.innerHTML = '';
+  CATS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat' + (c.id === activeCat ? ' active' : '');
+    btn.innerHTML = `${c.th} <span style="opacity:.55; margin-left:4px; font-family: 'Noto Serif TC', serif;">${c.cn}</span>`;
+    btn.onclick = () => { activeCat = c.id; renderCats(); renderResults(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderResults() {
+  const q = currentQuery.trim();
+  const filtered = DATA.filter(d => activeCat === "all" || d.cat === activeCat);
+
+  let scored;
+  if (q) {
+    scored = filtered.map(d => ({ d, s: scoreItem(d, q) }))
+                     .filter(x => x.s > 0)
+                     .sort((a,b) => b.s - a.s);
+  } else {
+    scored = filtered.map(d => ({ d, s: 1 }));
+  }
+
+  // track search-driven views
+  if (q && scored.length > 0) {
+    trackSearch(scored.map(x => x.d), q);
+  }
+
+  const countEl = document.getElementById('count');
+  if (q) {
+    countEl.textContent = scored.length === 0
+      ? `ไม่พบ "${q}"`
+      : `พบ ${scored.length} รายการ · "${q}"`;
+  } else {
+    countEl.textContent = `${scored.length} รายการ`;
+  }
+
+  const root = document.getElementById('results');
+  if (scored.length === 0) {
+    root.innerHTML = `
+      <div class="empty">
+        <div class="big">無</div>
+        <p>ลองคำใกล้เคียง เช่น "ติ่ม", "บะหมี่", "เป็ด"</p>
+        <p style="font-size:12px; margin-top:8px;">รองรับการพิมพ์ผิดเล็กน้อยและคำพ้องเสียง</p>
+      </div>`;
+    return;
+  }
+
+  root.innerHTML = scored.slice(0, 200).map(({d}) => `
+    <div class="card">
+      <div class="card-text">
+        <p class="thai-name">${highlight(d.thai, q)}</p>
+        <p class="chinese">${d.cn}</p>
+        <p class="pinyin">${d.py}</p>
+        <p class="english">${d.en}</p>
+      </div>
+      <button class="copy-btn" data-cn="${d.cn}" data-th="${d.thai}" aria-label="copy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      </button>
+    </div>
+  `).join('');
+
+  // wire up copy
+  root.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const cn = btn.dataset.cn;
+      const th = btn.dataset.th;
+      try {
+        await navigator.clipboard.writeText(cn);
+      } catch {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = cn;
+        ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        document.body.removeChild(ta);
+      }
+      trackCopy(cn);
+      btn.classList.add('copied');
+      // swap icon to checkmark briefly
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      showToast(`คัดลอกแล้ว <span class="cn">${cn}</span>`);
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+      }, 1400);
+    });
+  });
+}
+
+let toastTimer;
+function showToast(html) {
+  const t = document.getElementById('toast');
+  t.innerHTML = html;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ───── Events ───── */
+const q = document.getElementById('q');
+const clearBtn = document.getElementById('clearBtn');
+q.addEventListener('input', () => {
+  currentQuery = q.value;
+  clearBtn.classList.toggle('show', !!currentQuery);
+  renderResults();
+});
+clearBtn.addEventListener('click', () => {
+  q.value = ''; currentQuery = ''; clearBtn.classList.remove('show');
+  q.focus(); renderResults();
+});
+
+renderCats();
+renderResults();
+
+// Ribbon footer
+const wrap = document.querySelector('.wrap');
+const ribbon = document.createElement('div');
+ribbon.className = 'ribbon';
+ribbon.textContent = `${DATA.length} dishes · tap card to copy 汉字`;
+wrap.appendChild(ribbon);
+
+/* ───── Stats Modal ───── */
+let currentStatsTab = 'copies';
+
+function renderStatsModal() {
+  const data = currentStatsTab === 'copies' ? stats.copies : stats.views;
+  const entries = Object.entries(data).sort((a,b) => b[1] - a[1]).slice(0, 50);
+  const body = document.getElementById('statsBody');
+
+  if (entries.length === 0) {
+    body.innerHTML = `
+      <div class="stats-empty">
+        <div class="big">空</div>
+        <p>${currentStatsTab === 'copies' ? 'ยังไม่มีการคัดลอก' : 'ยังไม่มีการค้นหา'}</p>
+        <p style="font-size:11px; margin-top:6px; color: var(--muted);">เริ่มใช้งานเพื่อดูสถิติ · Start using to see stats</p>
+      </div>`;
+  } else {
+    body.innerHTML = entries.map(([cn, count], i) => {
+      const item = DATA.find(d => d.cn === cn);
+      if (!item) return '';
+      return `
+        <div class="stat-row">
+          <div class="stat-rank ${i < 3 ? 'top' : ''}">${i+1}</div>
+          <div class="stat-text">
+            <p class="stat-cn">${item.cn}</p>
+            <p class="stat-thai">${item.thai} · <span class="py">${item.py}</span></p>
+          </div>
+          <div class="stat-count">${count}<small>${currentStatsTab === 'copies' ? 'copies' : 'views'}</small></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.querySelectorAll('.modal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === currentStatsTab);
+  });
+
+  const days = Math.max(1, Math.ceil((Date.now() - stats.since) / (24*3600*1000)));
+  const uniqueCopied = Object.keys(stats.copies).length;
+  document.getElementById('statsSummary').textContent =
+    `${stats.totalCopies} copies · ${uniqueCopied} unique dish${uniqueCopied===1?'':'es'} · ${stats.totalSearches} searches · since ${days} day${days===1?'':'s'}`;
+}
+
+function openStats() {
+  renderStatsModal();
+  document.getElementById('statsBackdrop').classList.add('show');
+  document.getElementById('statsModal').classList.add('show');
+  document.getElementById('statsModal').setAttribute('aria-hidden', 'false');
+}
+function closeStats() {
+  document.getElementById('statsBackdrop').classList.remove('show');
+  document.getElementById('statsModal').classList.remove('show');
+  document.getElementById('statsModal').setAttribute('aria-hidden', 'true');
+}
+
+document.getElementById('statsBtn').addEventListener('click', openStats);
+document.getElementById('statsClose').addEventListener('click', closeStats);
+document.getElementById('statsBackdrop').addEventListener('click', closeStats);
+document.querySelectorAll('.modal-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    currentStatsTab = t.dataset.tab;
+    renderStatsModal();
+  });
+});
+document.getElementById('statsReset').addEventListener('click', () => {
+  if (!confirm('ล้างสถิติทั้งหมด? · Reset all stats?')) return;
+  stats = { copies: {}, views: {}, totalCopies: 0, totalSearches: 0, since: Date.now() };
+  saveStats();
+  updateStatsDot();
+  renderStatsModal();
+});
+document.getElementById('statsExport').addEventListener('click', () => {
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    since: new Date(stats.since).toISOString(),
+    totalCopies: stats.totalCopies,
+    totalSearches: stats.totalSearches,
+    copies: Object.entries(stats.copies)
+      .sort((a,b) => b[1] - a[1])
+      .map(([cn, count]) => {
+        const item = DATA.find(d => d.cn === cn);
+        return { cn, count, thai: item?.thai, py: item?.py, en: item?.en, cat: item?.cat };
+      }),
+    views: Object.entries(stats.views)
+      .sort((a,b) => b[1] - a[1])
+      .map(([cn, count]) => {
+        const item = DATA.find(d => d.cn === cn);
+        return { cn, count, thai: item?.thai, py: item?.py };
+      })
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `food-dict-stats-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ESC to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('statsModal').classList.contains('show')) {
+    closeStats();
+  }
+});
+
+updateStatsDot();
+</script>
+</body>
+</html>
