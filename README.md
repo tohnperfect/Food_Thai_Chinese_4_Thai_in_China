@@ -21,7 +21,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ## Features
 
-- **872 dishes** across 21 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean)
+- **884 dishes** across 21 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean)
 - **Fuzzy Thai search** — tolerates tone marks, vowel diacritics, common transliteration variants, and typos
 - **Multi-language input** — search in Thai (ผัดไทย), English (pad thai), or pinyin (chao mian, with or without tone marks)
 - **One-tap copy** of Chinese characters to clipboard (with fallback for older browsers)
@@ -32,7 +32,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ---
 
-## Categories (872 dishes)
+## Categories (884 dishes)
 
 | | Category | Thai | Chinese | Count |
 |---|---|---|---|---|
@@ -48,8 +48,8 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | 🦐 | Seafood | ทะเล | 海鲜 | 48 |
 | 🥬 | Vegetables | ผัก | 蔬 | 59 |
 | 🍲 | Soup / Hotpot | ซุป/หม้อไฟ | 汤 | 31 |
-| 🍢 | Snacks | ของกินเล่น | 小吃 | 39 |
-| 🍰 | Desserts | ของหวาน | 甜 | 32 |
+| 🍢 | Snacks | ของกินเล่น | 小吃 | 45 |
+| 🍰 | Desserts | ของหวาน | 甜 | 38 |
 | 🥤 | Drinks | เครื่องดื่ม | 饮 | 68 |
 | 🍎 | Fruits | ผลไม้ | 果 | 36 |
 | 🧂 | Ingredients & Seasonings | วัตถุดิบ | 食材 | 73 |
@@ -85,6 +85,9 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | `สุกี้` | same hotpot family, with Thai suki entries ranked first |
 | `บะหมี่` | all noodle family — 拉面 (ราเมง), 乌冬面 (อุด้ง), 越南河粉 (เฝอ), 担担面, 刀削面, etc. |
 | `ราเมง` | same noodle family, with ramen variants ranked first |
+| `ถังหูลู่` | 糖葫芦 (candied haw on stick) |
+| `jianbing` | 煎饼果子 (Beijing breakfast crepe) |
+| `pineapple cake` | 凤梨酥 (Taiwanese pineapple cake) |
 
 ### Search tolerance
 
@@ -152,7 +155,7 @@ git push
 | Storage | `localStorage` for usage stats |
 | Clipboard | `navigator.clipboard.writeText` with `execCommand('copy')` fallback |
 | Search | Custom scorer combining exact / startsWith / includes / Levenshtein ratio |
-| Footprint | ~150 KB total (HTML + inlined CSS + JS + 872-entry dataset) |
+| Footprint | ~150 KB total (HTML + inlined CSS + JS + 884-entry dataset) |
 | Browser support | Any modern mobile or desktop browser (iOS Safari 14+, Chrome 80+) |
 
 ---

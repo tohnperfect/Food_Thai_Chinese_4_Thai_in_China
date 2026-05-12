@@ -927,7 +927,7 @@ const DATA = [
   { thai: "มาลาถัง", alt: ["malatang"], cn: "麻辣烫", py: "má là tàng", en: "malatang (mala soup skewers)", cat: "snack" },
   { thai: "หม่าลาเซียงกั่ว", alt: ["mala xiangguo","หม่าล่าเซียงกั่ว"], cn: "麻辣香锅", py: "má là xiāng guō", en: "mala xiang guo (dry hot pot)", cat: "snack" },
   { thai: "โดนัทงา", alt: ["sesame ball"], cn: "麻团", py: "má tuán", en: "sesame ball (jian dui)", cat: "snack" },
-  { thai: "ผลไม้เสียบไม้ฉาบ", alt: ["tanghulu"], cn: "糖葫芦", py: "táng hú lu", en: "tanghulu", cat: "snack" },
+  { thai: "ถังหูลู่", alt: ["ผลไม้เสียบไม้ฉาบ","ทังหูลู่","ลูกพลับเสียบไม้ฉาบ","tanghulu","tang hu lu","candied haw","bing tang hulu"], cn: "糖葫芦", py: "táng hú lu", en: "tanghulu (candied haw on stick)", cat: "snack" },
   { thai: "ไข่ต้มชา", alt: ["tea egg"], cn: "茶叶蛋", py: "chá yè dàn", en: "tea egg", cat: "snack" },
   { thai: "ไส้กรอกย่างไต้หวัน", alt: ["taiwan sausage"], cn: "台湾烤肠", py: "tái wān kǎo cháng", en: "Taiwanese grilled sausage", cat: "snack" },
   { thai: "หม่านโถวทอด", alt: [], cn: "炸馒头", py: "zhá mán tou", en: "fried mantou", cat: "snack" },
@@ -947,6 +947,14 @@ const DATA = [
   { thai: "ขนมข้าวพอง", alt: [], cn: "米饼", py: "mǐ bǐng", en: "rice cracker", cat: "snack" },
   { thai: "แครกเกอร์", alt: ["cracker"], cn: "饼干", py: "bǐng gān", en: "biscuit / cracker", cat: "snack" },
   { thai: "ลูกอม", alt: [], cn: "糖果", py: "táng guǒ", en: "candy", cat: "snack" },
+
+  // ── EXT: Chinese street snacks ──
+  { thai: "หม่าฮัว", alt: ["มาฮัว","mahua","ma hua","fried dough twist"], cn: "麻花", py: "má huā", en: "mahua (fried dough twist)", cat: "snack" },
+  { thai: "ซาฉีหม่า", alt: ["ซะฉีหม่า","sachima","saqima","sa qi ma"], cn: "萨其马", py: "sà qí mǎ", en: "sachima (sweet candied dough cake)", cat: "snack" },
+  { thai: "เจียนปิ่งกั่วจึ", alt: ["jianbing","jianbing guozi","ขนมเจียนปิ่ง","Beijing crepe"], cn: "煎饼果子", py: "jiān bǐng guǒ zi", en: "jianbing guozi (Beijing/Tianjin breakfast crepe)", cat: "snack" },
+  { thai: "เจียนปิ่ง", alt: ["chinese crepe","savory pancake","ขนมเบื้องจีนคาว"], cn: "煎饼", py: "jiān bǐng", en: "Chinese savory pancake / crepe", cat: "snack" },
+  { thai: "โหร่วเจียโม่", alt: ["rou jia mo","roujiamo","ซีอานเบอร์เกอร์","Xi'an meat bun","chinese hamburger"], cn: "肉夹馍", py: "ròu jiā mó", en: "rou jia mo (Xi'an meat bun)", cat: "snack" },
+  { thai: "เซาปิ่ง", alt: ["shaobing","shao bing","sesame flatbread"], cn: "烧饼", py: "shāo bǐng", en: "shaobing (sesame flatbread)", cat: "snack" },
 
   // ── EXT: Noodles ──
   { thai: "บะหมี่หลานโจว", alt: ["lanzhou ramen","หลันโจว"], cn: "兰州拉面", py: "lán zhōu lā miàn", en: "Lanzhou beef noodle", tags: ["noodle"], cat: "noodle" },
@@ -1235,6 +1243,14 @@ const DATA = [
   { thai: "ขนมเบื้องจีน", alt: [], cn: "煎堆", py: "jiān duī", en: "fried sesame ball", cat: "dessert" },
   { thai: "ไอติมถั่วแดง", alt: [], cn: "红豆冰", py: "hóng dòu bīng", en: "red bean shaved ice", cat: "dessert" },
   { thai: "ไอติมแมงโก", alt: [], cn: "芒果冰", py: "máng guǒ bīng", en: "mango shaved ice", cat: "dessert" },
+
+  // ── EXT: Chinese sweets ──
+  { thai: "ลู่ตากุน", alt: ["ลวี่ต๋ากุ่น","lvdagun","lü da gun","donkey rolling","Beijing rolled rice cake"], cn: "驴打滚", py: "lǘ dǎ gǔn", en: "lü da gun (Beijing rolled glutinous rice cake)", cat: "dessert" },
+  { thai: "เซียนเฉ่า", alt: ["เซาเซียนเฉ่า","shao xian cao","shaoxiancao","grass jelly dessert"], cn: "烧仙草", py: "shāo xiān cǎo", en: "shao xian cao (warm grass jelly dessert)", cat: "dessert" },
+  { thai: "เฟิ่งหลีซู", alt: ["เฟิงลี่ซู","pineapple cake","feng li su","fengli su","ขนมสับปะรดไต้หวัน"], cn: "凤梨酥", py: "fèng lí sū", en: "pineapple cake (Taiwanese)", cat: "dessert" },
+  { thai: "กุยหลิงเกา", alt: ["guiling gao","gui ling gao","tortoise jelly","herbal jelly"], cn: "龟苓膏", py: "guī líng gāo", en: "guiling gao (Chinese herbal jelly)", cat: "dessert" },
+  { thai: "ขนมถั่วเขียวจีน", alt: ["ขนมเปี๊ยะถั่วเขียว","mung bean cake","lü dou gao","lvdougao"], cn: "绿豆糕", py: "lǜ dòu gāo", en: "mung bean cake", cat: "dessert" },
+  { thai: "ชิงถวน", alt: ["ชิงท่วน","qing tuan","qingtuan","green sticky rice ball"], cn: "青团", py: "qīng tuán", en: "qingtuan (green sticky rice ball)", cat: "dessert" },
 
   // ── EXT: Drinks ──
   { thai: "ชาดอกไม้", alt: [], cn: "花茶", py: "huā chá", en: "flower tea", cat: "drink" },
