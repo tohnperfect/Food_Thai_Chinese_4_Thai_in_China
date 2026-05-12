@@ -5,7 +5,7 @@
 >
 > Type a dish in Thai → get the Chinese characters → paste into Meituan / Dianping / WeChat / any Chinese app.
 
-[**🔗 Live demo**](https://tohnperfect.github.io/thai-chinese-food-dict/)
+[**🔗 Live demo**](https://tohnperfect.github.io/Food_Thai_Chinese_4_Thai_in_China/)
 
 ---
 
