@@ -21,7 +21,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ## Features
 
-- **864 dishes** across 21 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean)
+- **872 dishes** across 21 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean)
 - **Fuzzy Thai search** — tolerates tone marks, vowel diacritics, common transliteration variants, and typos
 - **Multi-language input** — search in Thai (ผัดไทย), English (pad thai), or pinyin (chao mian, with or without tone marks)
 - **One-tap copy** of Chinese characters to clipboard (with fallback for older browsers)
@@ -32,7 +32,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ---
 
-## Categories (864 dishes)
+## Categories (872 dishes)
 
 | | Category | Thai | Chinese | Count |
 |---|---|---|---|---|
@@ -53,7 +53,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | 🥤 | Drinks | เครื่องดื่ม | 饮 | 68 |
 | 🍎 | Fruits | ผลไม้ | 果 | 36 |
 | 🧂 | Ingredients & Seasonings | วัตถุดิบ | 食材 | 73 |
-| 🇹🇭 | Thai dishes → Chinese | ไทย→จีน | 泰 | 61 |
+| 🇹🇭 | Thai dishes → Chinese | ไทย→จีน | 泰 | 69 |
 | 🇯🇵 | Japanese | ญี่ปุ่น | 日 | 52 |
 | 🇰🇷 | Korean | เกาหลี | 韓 | 35 |
 | 🌏 | Other Asian | อื่นๆ | 其他 | 31 |
@@ -81,10 +81,19 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | `ทุเรียน` | 榴莲 |
 | `บะหมี่หลานโจว` | 兰州拉面 |
 | `กระเพาะปลา` | 鱼肚羹 (and 4 other variants) |
+| `หม้อไฟ` | all hotpot family — 火锅, 泰式火锅 (สุกี้), 涮锅 (ชาบู), 寿喜烧 (sukiyaki), 涮羊肉, etc. |
+| `สุกี้` | same hotpot family, with Thai suki entries ranked first |
+| `บะหมี่` | all noodle family — 拉面 (ราเมง), 乌冬面 (อุด้ง), 越南河粉 (เฝอ), 担担面, 刀削面, etc. |
+| `ราเมง` | same noodle family, with ramen variants ranked first |
 
 ### Search tolerance
 
 The Thai matcher normalises tone marks (`่ ้ ๊ ๋`) and vowel diacritics, so `ผัดไท` and `ผัดไทย` both match. Pinyin matching ignores tone marks, so `ma la` finds `má là`. There's also a Levenshtein-distance fallback for genuine typos, with a relevance score that ranks exact matches above fuzzy ones.
+
+**Family tags** group related dishes so a query for one surfaces all of them. Direct name matches always rank above family matches, so you get the closest hit first and the rest of the family below. Current families:
+
+- **`hotpot`** (24 dishes) — Thai สุกี้, ชาบู, หม้อไฟ, Sichuan 火锅, Mongolian 涮羊肉, Japanese 寿喜烧 / 涮涮锅, Korean 部队锅 / 泡菜火锅, etc. Triggers: `หม้อไฟ`, `สุกี้`, `ชาบู`, `hotpot`, `shabu`, `suki`, `sukiyaki`, `火锅`.
+- **`noodle`** (71 dishes) — Thai ก๋วยเตี๋ยว / บะหมี่ / ราเมง / เฝอ / อุด้ง / โซบะ, Chinese 拉面 / 米粉 / 米线 / 河粉 / 担担面 / 刀削面, Vietnamese 越南河粉, Korean 炸酱面, etc. Triggers: `ก๋วยเตี๋ยว`, `บะหมี่`, `ราเมง`, `อุด้ง`, `โซบะ`, `เฝอ`, `มาม่า`, `noodle`, `ramen`, `udon`, `soba`, `pho`, `拉面`, `米粉`, `米线`, `面条`.
 
 ---
 
@@ -143,7 +152,7 @@ git push
 | Storage | `localStorage` for usage stats |
 | Clipboard | `navigator.clipboard.writeText` with `execCommand('copy')` fallback |
 | Search | Custom scorer combining exact / startsWith / includes / Levenshtein ratio |
-| Footprint | ~150 KB total (HTML + inlined CSS + JS + 864-entry dataset) |
+| Footprint | ~150 KB total (HTML + inlined CSS + JS + 872-entry dataset) |
 | Browser support | Any modern mobile or desktop browser (iOS Safari 14+, Chrome 80+) |
 
 ---
@@ -159,6 +168,7 @@ Each dish in `DATA` follows this shape:
   cn:   "点心",                     // Chinese characters (what gets copied)
   py:   "diǎn xīn",                 // pinyin with tone marks
   en:   "dim sum",                  // English gloss
+  tags: ["hotpot"],                 // optional — family tags (see FAMILIES)
   cat:  "dimsum"                    // category id (see CATS array)
 }
 ```
@@ -169,6 +179,7 @@ Each dish in `DATA` follows this shape:
 - Alt spellings: 0.92
 - English / pinyin / stripped-pinyin: 0.78
 - Chinese: 1.0
+- Family-tag keywords (from `FAMILIES`): 0.55 — surfaces related dishes when the user searches a family term, but always ranks below direct name matches
 
 A Levenshtein-ratio fallback fires when no substring match is found, scoring `ratio × 65` for ratios above 0.55.
 
