@@ -21,7 +21,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ## Features
 
-- **884 dishes** across 21 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean)
+- **946 dishes** across 22 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean, Western)
 - **Fuzzy Thai search** — tolerates tone marks, vowel diacritics, common transliteration variants, and typos
 - **Multi-language input** — search in Thai (ผัดไทย), English (pad thai), or pinyin (chao mian, with or without tone marks)
 - **One-tap copy** of Chinese characters to clipboard (with fallback for older browsers)
@@ -32,7 +32,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ---
 
-## Categories (884 dishes)
+## Categories (946 dishes)
 
 | | Category | Thai | Chinese | Count |
 |---|---|---|---|---|
@@ -57,6 +57,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | 🇯🇵 | Japanese | ญี่ปุ่น | 日 | 52 |
 | 🇰🇷 | Korean | เกาหลี | 韓 | 35 |
 | 🌏 | Other Asian | อื่นๆ | 其他 | 31 |
+| 🍕 | Western | ฝรั่ง | 西餐 | 62 |
 
 ---
 
@@ -88,6 +89,9 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | `ถังหูลู่` | 糖葫芦 (candied haw on stick) |
 | `jianbing` | 煎饼果子 (Beijing breakfast crepe) |
 | `pineapple cake` | 凤梨酥 (Taiwanese pineapple cake) |
+| `pizza` / `พิซซ่า` | 披萨 + topping variants |
+| `steak` / `สเต๊ก` | 牛排 + cuts (filet, ribeye, T-bone, sirloin) |
+| `burger` | 汉堡包, 芝士汉堡, 双层汉堡, etc. |
 
 ### Search tolerance
 
@@ -155,7 +159,7 @@ git push
 | Storage | `localStorage` for usage stats |
 | Clipboard | `navigator.clipboard.writeText` with `execCommand('copy')` fallback |
 | Search | Custom scorer combining exact / startsWith / includes / Levenshtein ratio |
-| Footprint | ~150 KB total (HTML + inlined CSS + JS + 884-entry dataset) |
+| Footprint | ~150 KB total (HTML + inlined CSS + JS + 946-entry dataset) |
 | Browser support | Any modern mobile or desktop browser (iOS Safari 14+, Chrome 80+) |
 
 ---
