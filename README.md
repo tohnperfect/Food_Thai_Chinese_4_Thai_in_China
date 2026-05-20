@@ -21,7 +21,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ## Features
 
-- **946 dishes** across 22 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean, Western)
+- **953 dishes** across 22 categories (Chinese regional, Thai, Japanese, Korean, Vietnamese, Indian, Malaysian, Indonesian, Singaporean, Western)
 - **Fuzzy Thai search** — tolerates tone marks, vowel diacritics, common transliteration variants, and typos
 - **Multi-language input** — search in Thai (ผัดไทย), English (pad thai), or pinyin (chao mian, with or without tone marks)
 - **One-tap copy** of Chinese characters to clipboard (with fallback for older browsers)
@@ -32,17 +32,17 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 
 ---
 
-## Categories (946 dishes)
+## Categories (953 dishes)
 
 | | Category | Thai | Chinese | Count |
 |---|---|---|---|---|
 | 🥟 | Dim Sum | ติ่มซำ | 点心 | 39 |
 | 🍜 | Noodles | ก๋วยเตี๋ยว | 面 | 47 |
 | 🍚 | Rice | ข้าว | 饭 | 40 |
-| 🌶️ | Sichuan | เสฉวน | 川 | 23 |
+| 🌶️ | Sichuan | เสฉวน | 川 | 26 |
 | 🦆 | Cantonese | กวางตุ้ง | 粤 | 22 |
 | 🥢 | Northern Chinese | ภาคเหนือจีน | 京 | 18 |
-| 🦀 | Shanghai / Jiangsu | เซี่ยงไฮ้ | 沪 | 12 |
+| 🦀 | Shanghai / Jiangsu | เซี่ยงไฮ้ | 沪 | 14 |
 | 🥣 | Tonic / Banquet | เครื่องตุ๋น/บำรุง | 滋补 | 46 |
 | 🥩 | Meat | เนื้อสัตว์ | 肉 | 52 |
 | 🦐 | Seafood | ทะเล | 海鲜 | 48 |
@@ -52,7 +52,7 @@ Search **"ติ่มซำ"** → tap → 点心 is in your clipboard. Done.
 | 🍰 | Desserts | ของหวาน | 甜 | 38 |
 | 🥤 | Drinks | เครื่องดื่ม | 饮 | 68 |
 | 🍎 | Fruits | ผลไม้ | 果 | 36 |
-| 🧂 | Ingredients & Seasonings | วัตถุดิบ | 食材 | 73 |
+| 🧂 | Ingredients & Seasonings | วัตถุดิบ | 食材 | 75 |
 | 🇹🇭 | Thai dishes → Chinese | ไทย→จีน | 泰 | 69 |
 | 🇯🇵 | Japanese | ญี่ปุ่น | 日 | 52 |
 | 🇰🇷 | Korean | เกาหลี | 韓 | 35 |
@@ -159,7 +159,7 @@ git push
 | Storage | `localStorage` for usage stats |
 | Clipboard | `navigator.clipboard.writeText` with `execCommand('copy')` fallback |
 | Search | Custom scorer combining exact / startsWith / includes / Levenshtein ratio |
-| Footprint | ~150 KB total (HTML + inlined CSS + JS + 946-entry dataset) |
+| Footprint | ~150 KB total (HTML + inlined CSS + JS + 953-entry dataset) |
 | Browser support | Any modern mobile or desktop browser (iOS Safari 14+, Chrome 80+) |
 
 ---
